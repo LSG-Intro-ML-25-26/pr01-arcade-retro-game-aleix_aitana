@@ -2,7 +2,9 @@
     "name": "MakeCode-Arcade-Template",
     "description": "",
     "dependencies": {
-        "device": "*"
+        "device": "*",
+        "editor-extension-sample": "github:riknoll/pxt-arcade-asset-tool#bba1e09e5df247b363270261a21fa6972fd93351",
+        "arcade-mini-menu": "github:riknoll/arcade-mini-menu#v0.0.1"
     },
     "files": [
         "main.blocks",
@@ -11,7 +13,9 @@
         "assets.json",
         "images.g.jres",
         "images.g.ts",
-        "main.py"
+        "main.py",
+        "tilemap.g.jres",
+        "tilemap.g.ts"
     ],
     "testFiles": [
         "test.ts"
