@@ -1,62 +1,98 @@
-"""
-
-Activa la fase final del juego.
-
-[cite: 57]
-
-"""
-"""
-
---- VARIABLES GLOBALES (Abasto de variables) ---
-
-"""
-# Funcionalidad Extra: Dibuja un mini-indicador de progreso en pantalla.
-def dibujarInterfazTecnica():
-    global i
-    # Dibuja un fondo para el mini-mapa/inventario en la esquina
-    screen.fill_rect(2, 2, 22, 8, 15)
-    while i <= len(inventario) - 1:
-        # Dibuja un punto verde por cada objeto en el inventario
-        screen.set_pixel(4 + i * 6, 5, 7)
-        i += 1
-# Lógica técnica para procesar el daño de los enemigos.
-# [cite: 39]
-def procesarDano():
-    miJugador: Sprite = None
-    info.change_life_by(-1)
-    scene.camera_shake(4, 500)
-    miJugador.say("¡ERROR!", 500)
-    # Pequeño retroceso para evitar perder vidas seguidas
-    miJugador.x += 10
-# Gestiona la recolección de objetos de forma modular.
-# @param objeto Nombre del ítem recogido
-# [cite: 39, 59]
-def gestionarInventario(objeto: str):
-    inventario.append(objeto)
-    music.ba_ding.play()
-    game.splash("Recuperado: " + objeto)
-    # Verifica si se ha alcanzado el objetivo para el final del juego [cite: 57]
-    if len(inventario) >= paquetesNecesarios:
-        desbloquearFinal()
-# Inicializa los valores técnicos del sistema.
-# [cite: 39, 59]
-def inicializarSistema():
-    global inventario
-    inventario = []
-    info.set_score(0)
+# --- VARIABLES GLOBALES ---
+mi_jugador: Sprite = None
+def inicializar_juego():
+    global mi_jugador
+    """
+    Configura el mapa y coloca al robot en la zona azul.
+    """
+    # 1. CARGAR EL MAPA
+    # Función corregida para Python
+    tiles.set_current_tilemap(tilemap("""
+        level
+        """))
+    # 2. POSICIONAMIENTO EN ZONA AZUL
+    mi_jugador = sprites.create(assets.image("""
+        robot_front
+        """), SpriteKind.player)
+    # Coordenadas ajustadas al círculo azul de tu imagen:
+    # Columna 22, Fila 13 (Esquina inferior de la sala derecha)
+    tiles.place_on_tile(mi_jugador, tiles.get_tile_location(34, 16))
+    # Configurar movimiento y cámara
+    controller.move_sprite(mi_jugador)
+    scene.camera_follow_sprite(mi_jugador)
     info.set_life(3)
-# Aquí Persona B debería cambiar el mapa o abrir una puerta
-def desbloquearFinal():
-    game.show_long_text("SISTEMA REPARADO. Busca la salida.", DialogLayout.BOTTOM)
-inventario: List[str] = []
-i = 0
-paquetesNecesarios = 0
-# Estructura de datos compleja: Vector/Lista
-paquetesNecesarios = 3
-# Evento que se ejecuta constantemente para actualizar la GUI técnica [cite: 58]
+    # 3. GENERAR ENEMIGOS (Lejos de la zona azul)
+    spawn_bugs(5)
+def spawn_bugs(cantidad: number):
+    """
+    Crea enemigos en las salas de la izquierda para dar tiempo al jugador.
+    """
+    for i in range(cantidad):
+        bug = sprites.create(assets.image("""
+            bug_down
+            """), SpriteKind.enemy)
+        # Generar aleatoriamente en columnas 1 a 18 (lado izquierdo/centro)
+        col_azar = randint(1, 18)
+        fil_azar = randint(1, 14)
+        tiles.place_on_tile(bug, tiles.get_tile_location(col_azar, fil_azar))
+        # Función de seguimiento corregida
+        bug.follow(mi_jugador, 30)
+def gestionar_animaciones():
+    """
+    Actualiza las imágenes del robot y enemigos según su dirección.
+    """
+    # --- Animación Robot ---
+    if mi_jugador.vx > 0:
+        mi_jugador.set_image(assets.image("""
+            robot_right
+            """))
+    elif mi_jugador.vx < 0:
+        mi_jugador.set_image(assets.image("""
+            robot_left
+            """))
+    elif mi_jugador.vy < 0:
+        mi_jugador.set_image(assets.image("""
+            robot_up
+            """))
+    elif mi_jugador.vy > 0:
+        mi_jugador.set_image(assets.image("""
+            robot_front
+            """))
+    # --- Animación Enemigos ---
+    # Corrección de sintaxis 'in' y 'all_of_kind'
+    for bug2 in sprites.all_of_kind(SpriteKind.enemy):
+        if bug2.vx > 0:
+            bug2.set_image(assets.image("""
+                bug_right
+                """))
+        elif bug2.vx < 0:
+            bug2.set_image(assets.image("""
+                bug_left
+                """))
+        elif bug2.vy < 0:
+            bug2.set_image(assets.image("""
+                bug_up
+                """))
+        elif bug2.vy > 0:
+            bug2.set_image(assets.image("""
+                bug_down
+                """))
+def bloquear_enemigos_puentes():
+    """
+    Opcional: Impide que los enemigos crucen a tu sala.
+    """
+    for bug3 in sprites.all_of_kind(SpriteKind.enemy):
+        c = Math.idiv(bug3.x, 16)
+        # Si intentan cruzar el puente de la columna 19 (entrada a tu sala)
+        if c == 19:
+            bug3.vx = 0
+            bug3.x -= 2
+# --- BUCLE PRINCIPAL ---
 
-def on_on_update():
-    dibujarInterfazTecnica()
-game.on_update(on_on_update)
+def on_update():
+    gestionar_animaciones()
+    bloquear_enemigos_puentes()
+game.on_update(on_update)
 
-
+# Iniciar
+inicializar_juego()
