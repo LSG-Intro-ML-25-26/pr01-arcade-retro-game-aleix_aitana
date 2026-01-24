@@ -13,4 +13,6 @@ En la segunda imagen encontramos al boss con color morado en la cara y ojos amar
 Por último, el paquete número 3, y los enemigos que podrás encontrar por todo el mapa llamados bugs. 
 ![Assets](https://github.com/LSG-Intro-ML-25-26/pr01-arcade-retro-game-aleix_aitana/blob/master/img/recurso1.PNG)
 
+## Demo speed-run
+
 
