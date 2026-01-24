@@ -1,11 +1,8 @@
 """
-
---- VARIABLES GLOBALES ---
-
+--- VARIABLES GLOBALES --- 
 """
 mi_jugador: Sprite = None
 menu: miniMenu.MenuSprite = None
-
 def inicializar_juego():
     global mi_jugador
     # Configura el mapa y coloca al robot en la zona azul.
@@ -28,48 +25,30 @@ def inicializar_juego():
     spawn_bugs(5)
 def narrar_historia():
     # Muestra cuadros de texto explicando el Lore del juego.
-    game.show_long_text("Año 2149."+
-        "Los servidores corporativos se han convertido en mundos digitales conscientes",
-    DialogLayout.BOTTOM)
-
-    game.show_long_text("El servidor NEXUS-CORE ha sido infectado." +
-        "Un virus ha tomado el control del sistema.",
-    DialogLayout.BOTTOM)
-
-    game.show_long_text("Protocolo activado: 404." +
-        "Reinicio total inminente.",
-    DialogLayout.BOTTOM)
-
-    game.show_long_text("Antes del borrado final, se libera una última defensa.", DialogLayout.BOTTOM)
-
-    game.show_long_text("Tú eres un Data Sweeper." +
-        "Un robot diseñado para limpiar datos corruptos.",
-    DialogLayout.BOTTOM)
-
-    game.show_long_text("El servidor es ahora un laberinto inestable." +
-        "Los Bugs patrullan cada sector.",
-    DialogLayout.BOTTOM)
-    
-    game.show_long_text("Tu misión:" +
-        "Recuperar 3 Paquetes de Datos Vitales.",
-    DialogLayout.BOTTOM)
-    
-    game.show_long_text("Cada paquete es clave para detener el reinicio.", DialogLayout.BOTTOM)
-    
-    game.show_long_text("El virus tiene un núcleo." +
-        "Su nombre es Root-Overwrite.",
-    DialogLayout.BOTTOM)
-    
-    game.show_long_text("Cuando recuperes los 3 paquetes, el acceso al núcleo se abrirá.", DialogLayout.BOTTOM)
-    
-    game.show_long_text("Derrota a Root-Overwrite." +
-        "Restaura el sistema.",
-    DialogLayout.BOTTOM)
-    
-    game.show_long_text("El tiempo corre." +
-        "Inicia la limpieza.",
-    DialogLayout.BOTTOM)
-    
+    game.show_long_text("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes",
+        DialogLayout.BOTTOM)
+    game.show_long_text("El servidor NEXUS-CORE ha sido infectado." + "Un virus ha tomado el control del sistema.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Protocolo activado: 404." + "Reinicio total inminente.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Antes del borrado final, se libera una última defensa.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Tú eres un Data Sweeper." + "Un robot diseñado para limpiar datos corruptos.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("El servidor es ahora un laberinto inestable." + "Los Bugs patrullan cada sector.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Tu misión:" + "Recuperar 3 Paquetes de Datos Vitales.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Cada paquete es clave para detener el reinicio.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("El virus tiene un núcleo." + "Su nombre es Root-Overwrite.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Cuando recuperes los 3 paquetes, el acceso al núcleo se abrirá.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Derrota a Root-Overwrite." + "Restaura el sistema.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("El tiempo corre." + "Inicia la limpieza.",
+        DialogLayout.BOTTOM)
 def mostrar_menu_inicio():
     global menu
     # 1. Configuramos el fondo
@@ -214,7 +193,7 @@ def mostrar_menu_inicio():
         menu.close()
         if selection == "LORE":
             narrar_historia()
-            inicializar_juego()
+            mostrar_menu_inicio()
         else:
             inicializar_juego()
     menu.on_button_pressed(controller.A, on_button_pressed)
@@ -276,13 +255,9 @@ def gestionar_animaciones():
             bug2.set_image(assets.image("""
                 bug_down
                 """))
-
-
 # --- INICIO DEL PROGRAMA ---
 # En lugar de llamar a inicializar_juego() directo, llamamos al menú
 mostrar_menu_inicio()
-
-
 # --- BUCLE PRINCIPAL ---
 
 def on_on_update():

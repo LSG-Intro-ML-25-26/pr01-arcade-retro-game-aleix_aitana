@@ -179,7 +179,7 @@ function mostrar_menu_inicio() {
         menu.close()
         if (selection == "LORE") {
             narrar_historia()
-            inicializar_juego()
+            mostrar_menu_inicio()
         } else {
             inicializar_juego()
         }
