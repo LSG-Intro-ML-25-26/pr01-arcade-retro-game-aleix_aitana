@@ -3,7 +3,7 @@ mi_jugador: Sprite = None
 def inicializar_juego():
     global mi_jugador
     """
-    Configura el mapa y coloca al robot en la zona azul.
+    Configura el mapa y coloca al robot en la zona azul. 
     """
     # 1. CARGAR EL MAPA
     # Función corregida para Python
@@ -25,7 +25,7 @@ def inicializar_juego():
     spawn_bugs(5)
 def spawn_bugs(cantidad: number):
     """
-    Crea enemigos en las salas de la izquierda para dar tiempo al jugador.
+    Crea enemigos en las salas de la izquierda para dar tiempo al jugador. 
     """
     for i in range(cantidad):
         bug = sprites.create(assets.image("""
@@ -39,7 +39,7 @@ def spawn_bugs(cantidad: number):
         bug.follow(mi_jugador, 30)
 def gestionar_animaciones():
     """
-    Actualiza las imágenes del robot y enemigos según su dirección.
+    Actualiza las imágenes del robot y enemigos según su dirección. 
     """
     # --- Animación Robot ---
     if mi_jugador.vx > 0:
@@ -79,7 +79,7 @@ def gestionar_animaciones():
                 """))
 def bloquear_enemigos_puentes():
     """
-    Opcional: Impide que los enemigos crucen a tu sala.
+    Opcional: Impide que los enemigos crucen a tu sala. 
     """
     for bug3 in sprites.all_of_kind(SpriteKind.enemy):
         c = Math.idiv(bug3.x, 16)
