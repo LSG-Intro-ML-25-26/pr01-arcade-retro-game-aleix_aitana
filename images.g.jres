@@ -79,6 +79,11 @@
         "mimeType": "image/x-mkcd-f4",
         "displayName": "bug_right"
     },
+    "image18": {
+        "data": "hwQYABgAAAAAu7u7u7u7u7u7uwCwHRERERERERERvQvb0bu7u7u7u7u70bsbvb27u7u7u7vbG7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbu7u7u7u7u7u7G7sbvb27u7u7u7vbG7vb0bu7u7u7u7u70buwHRERERERERERvQsAu7u7u7u7u7u7uwA=",
+        "mimeType": "image/x-mkcd-f4",
+        "displayName": "MenuFrame"
+    },
     "anim1": {
         "namespace": "myAnimations",
         "id": "anim1",

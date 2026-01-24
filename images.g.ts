@@ -421,6 +421,33 @@ ff...fffffbddddddddbbbf.....
 .........ff.................
 ............................
 `;
+            case "image18":
+            case "MenuFrame":return img`
+..bbbbbbbbbbbbbbbbbbbb..
+.bd111111111111111111db.
+bd1dbbbbbbbbbbbbbbbbd1db
+b1dbbbbbbbbbbbbbbbbbbd1b
+b1bdbbbbbbbbbbbbbbbbdb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bbbbbbbbbbbbbbbbbbbb1b
+b1bdbbbbbbbbbbbbbbbbdb1b
+bd1bbbbbbbbbbbbbbbbbb1db
+bbd111111111111111111dbb
+.bbbbbbbbbbbbbbbbbbbbbb.
+..bbbbbbbbbbbbbbbbbbbb..
+`;
         }
         return null;
     })
