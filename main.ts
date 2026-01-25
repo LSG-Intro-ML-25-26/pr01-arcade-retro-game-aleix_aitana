@@ -22,7 +22,7 @@ function inicializar_juego() {
     //  Configurar movimiento y cámara
     controller.moveSprite(mi_jugador)
     scene.cameraFollowSprite(mi_jugador)
-    //  --- NUEVO: VIDAS Y CRONÓMETRO ---
+    //  --- VIDAS Y CRONÓMETRO ---
     info.setLife(3)
     info.startCountdown(180)
     //  180 segundos = 3 minutos
@@ -40,13 +40,13 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
     if (mi_jugador) {
         //  Crea un proyectil de plasma azul cian
         disparo = sprites.createProjectileFromSprite(img`
-                . . 9 9 . .
-                . 9 6 6 9 .
-                9 6 1 1 6 9
-                9 6 1 1 6 9
-                . 9 6 6 9 .
-                . . 9 9 . .
-                `, mi_jugador, dir_x, dir_y)
+            . . 9 9 . .
+            . 9 6 6 9 .
+            9 6 1 1 6 9
+            9 6 1 1 6 9
+            . 9 6 6 9 .
+            . . 9 9 . .
+        `, mi_jugador, dir_x, dir_y)
         music.pewPew.play()
     }
     
@@ -77,8 +77,8 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overla
     }
     
 })
-//  --- NUEVO: COLISIÓN DEL JUGADOR CONTRA ENEMIGOS (PIERDES VIDA) ---
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap_enemigo(sprite2: Sprite, otherSprite2: Sprite) {
+//  --- COLISIÓN DEL JUGADOR CONTRA ENEMIGOS (PIERDES VIDA) ---
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap_enemigo(sprite: Sprite, otherSprite: Sprite) {
     //  Quitamos una vida
     info.changeLifeBy(-1)
     //  Efecto de dolor
@@ -89,19 +89,13 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap_en
 })
 function repartir_piezas() {
     //  --- PIEZA 1 ---
-    let piece1 = sprites.create(assets.image`
-        piece1
-        `, SpriteKind.Food)
+    let piece1 = sprites.create(assets.image`piece1`, SpriteKind.Food)
     tiles.placeOnTile(piece1, tiles.getTileLocation(16, 2))
     //  --- PIEZA 2 ---
-    let piece2 = sprites.create(assets.image`
-        piece2
-        `, SpriteKind.Food)
+    let piece2 = sprites.create(assets.image`piece2`, SpriteKind.Food)
     tiles.placeOnTile(piece2, tiles.getTileLocation(27, 17))
     //  --- PIEZA 3 ---
-    let piece3 = sprites.create(assets.image`
-        piece3
-        `, SpriteKind.Food)
+    let piece3 = sprites.create(assets.image`piece3`, SpriteKind.Food)
     tiles.placeOnTile(piece3, tiles.getTileLocation(2, 2))
 }
 
@@ -109,9 +103,8 @@ function aparecer_jefe() {
     
     game.showLongText("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.Bottom)
     //  Creamos al jefe final
-    jefe_final = sprites.create(assets.image`
-        boss_front
-        `, SpriteKind.Enemy)
+    jefe_final = sprites.create(assets.image`boss_front`, SpriteKind.Enemy)
+    // COORDENADAS DONDE APARECERÁ EL JEFE FINAL (Columna, Fila) 
     tiles.placeOnTile(jefe_final, tiles.getTileLocation(10, 10))
     //  Le ponemos su barra de vida gigante de 15 puntos
     let barra_jefe = statusbars.create(40, 6, StatusBarKind.Health)
@@ -122,8 +115,8 @@ function aparecer_jefe() {
     jefe_final.follow(mi_jugador, 40)
 }
 
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite3: Sprite, otherSprite3: Sprite) {
-    otherSprite3.destroy(effects.confetti, 500)
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
+    otherSprite.destroy(effects.confetti, 500)
     info.changeScoreBy(1)
     music.baDing.play()
     if (info.score() == 3) {
@@ -295,24 +288,18 @@ function mostrar_menu_inicio() {
 function spawn_bugs() {
     //  Función auxiliar para crear 1 bug en unas coordenadas concretas
     function crear_bug(c: number, f: number) {
-        let bug = sprites.create(assets.image`
-            bug_down
-            `, SpriteKind.Enemy)
+        let bug = sprites.create(assets.image`bug_down`, SpriteKind.Enemy)
         tiles.placeOnTile(bug, tiles.getTileLocation(c, f))
         //  Les ponemos su barra de vida (2 puntos)
         let barra = statusbars.create(16, 2, StatusBarKind.Health)
         barra.attachToSprite(bug)
         barra.max = 2
         barra.value = 2
-        //  NUEVO: Movimiento libre y aleatorio en su sala
-        bug.setBounceOnWall(true)
-        //  Rebotan contra los muros rojos
+        //  Movimiento libre por la sala (chocando con los muros reales del mapa)
         bug.vx = randint(-25, 25)
-        //  Velocidad aleatoria X
         bug.vy = randint(-25, 25)
     }
     
-    //  Velocidad aleatoria Y
     //  Habitacion Pieza 3 (Arriba-Izquierda)
     crear_bug(3, 4)
     crear_bug(5, 2)
@@ -333,29 +320,29 @@ function spawn_bugs() {
 }
 
 //  Solo una haciendo guardia
-//  --- NUEVO: INTELIGENCIA ARTIFICIAL (DETECCIÓN DE CERCANÍA) ---
+//  --- INTELIGENCIA ARTIFICIAL (DETECCIÓN DE CERCANÍA) ---
 function gestionar_ia_enemigos() {
     let dist_x: number;
     let dist_y: number;
-    for (let bug2 of sprites.allOfKind(SpriteKind.Enemy)) {
+    for (let bug of sprites.allOfKind(SpriteKind.Enemy)) {
         //  El jefe no patrulla, siempre persigue
-        if (bug2 == jefe_final) {
+        if (bug == jefe_final) {
             continue
         }
         
         //  Calcular distancia en píxeles (5 baldosas * 16 px = 80 píxeles)
-        dist_x = Math.abs(bug2.x - mi_jugador.x)
-        dist_y = Math.abs(bug2.y - mi_jugador.y)
+        dist_x = Math.abs(bug.x - mi_jugador.x)
+        dist_y = Math.abs(bug.y - mi_jugador.y)
         if (dist_x < 80 && dist_y < 80) {
             //  ESTÁS EN RANGO: Te ha visto, te persigue
-            bug2.follow(mi_jugador, 35)
+            bug.follow(mi_jugador, 35)
         } else {
             //  FUERA DE RANGO: Deja de perseguirte
-            bug2.follow(mi_jugador, 0)
-            //  Si se ha quedado quieto, le damos un empujón aleatorio para que siga patrullando
-            if (bug2.vx == 0 && bug2.vy == 0) {
-                bug2.vx = randint(-25, 25)
-                bug2.vy = randint(-25, 25)
+            bug.follow(mi_jugador, 0)
+            //  Si se ha quedado quieto al chocar con un muro del mapa, le damos un nuevo empujón
+            if (bug.vx == 0 && bug.vy == 0) {
+                bug.vx = randint(-25, 25)
+                bug.vy = randint(-25, 25)
             }
             
         }
@@ -370,73 +357,49 @@ function gestionar_animaciones() {
     if (mi_jugador.vx > 0) {
         dir_x = 100
         dir_y = 0
-        mi_jugador.setImage(assets.image`
-            robot_right
-            `)
+        mi_jugador.setImage(assets.image`robot_right`)
     } else if (mi_jugador.vx < 0) {
         dir_x = -100
         dir_y = 0
-        mi_jugador.setImage(assets.image`
-            robot_left
-            `)
+        mi_jugador.setImage(assets.image`robot_left`)
     } else if (mi_jugador.vy < 0) {
         dir_x = 0
         dir_y = -100
-        mi_jugador.setImage(assets.image`
-            robot_up
-            `)
+        mi_jugador.setImage(assets.image`robot_up`)
     } else if (mi_jugador.vy > 0) {
         dir_x = 0
         dir_y = 100
-        mi_jugador.setImage(assets.image`
-            robot_front
-            `)
+        mi_jugador.setImage(assets.image`robot_front`)
     }
     
     //  --- Animación Jefe Final ---
     if (jefe_final) {
         if (jefe_final.vx > 0) {
-            jefe_final.setImage(assets.image`
-                boss_right
-                `)
+            jefe_final.setImage(assets.image`boss_right`)
         } else if (jefe_final.vx < 0) {
-            jefe_final.setImage(assets.image`
-                boss_left
-                `)
+            jefe_final.setImage(assets.image`boss_left`)
         } else if (jefe_final.vy < 0) {
-            jefe_final.setImage(assets.image`
-                boss_up
-                `)
+            jefe_final.setImage(assets.image`boss_up`)
         } else if (jefe_final.vy > 0) {
-            jefe_final.setImage(assets.image`
-                boss_front
-                `)
+            jefe_final.setImage(assets.image`boss_front`)
         }
         
     }
     
     //  --- Animación Enemigos ---
-    for (let bug22 of sprites.allOfKind(SpriteKind.Enemy)) {
-        if (bug22 == jefe_final) {
+    for (let bug2 of sprites.allOfKind(SpriteKind.Enemy)) {
+        if (bug2 == jefe_final) {
             continue
         }
         
-        if (bug22.vx > 0) {
-            bug22.setImage(assets.image`
-                bug_right
-                `)
-        } else if (bug22.vx < 0) {
-            bug22.setImage(assets.image`
-                bug_left
-                `)
-        } else if (bug22.vy < 0) {
-            bug22.setImage(assets.image`
-                bug_up
-                `)
-        } else if (bug22.vy > 0) {
-            bug22.setImage(assets.image`
-                bug_down
-                `)
+        if (bug2.vx > 0) {
+            bug2.setImage(assets.image`bug_right`)
+        } else if (bug2.vx < 0) {
+            bug2.setImage(assets.image`bug_left`)
+        } else if (bug2.vy < 0) {
+            bug2.setImage(assets.image`bug_up`)
+        } else if (bug2.vy > 0) {
+            bug2.setImage(assets.image`bug_down`)
         }
         
     }
