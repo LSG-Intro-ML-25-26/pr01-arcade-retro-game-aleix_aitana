@@ -3,6 +3,9 @@ let mi_jugador : Sprite = null
 let menu : miniMenu.MenuSprite = null
 //  Variable global para el jefe final
 let jefe_final : Sprite = null
+//  Variables para recordar hacia dónde mira el robot y poder disparar en esa dirección
+let dir_x = 0
+let dir_y = 100
 function inicializar_juego() {
     
     //  Configura el mapa y coloca al robot en la zona azul.
@@ -15,21 +18,62 @@ function inicializar_juego() {
         robot_front
         `, SpriteKind.Player)
     //  Coordenadas ajustadas al círculo azul de tu imagen:
-    //  Columna 22, Fila 13 (Esquina inferior de la sala derecha)
     tiles.placeOnTile(mi_jugador, tiles.getTileLocation(34, 16))
     //  Configurar movimiento y cámara
     controller.moveSprite(mi_jugador)
     scene.cameraFollowSprite(mi_jugador)
     info.setLife(3)
-    //  NUEVO: Ponemos el contador a 0
+    //  Ponemos el contador a 0
     info.setScore(0)
     //  3. GENERAR ENEMIGOS (Lejos de la zona azul)
     spawn_bugs(5)
-    //  NUEVO: Llamamos a la función que crea las piezas
+    //  Llamamos a la función que crea las piezas
     repartir_piezas()
 }
 
-//  NUEVO: FUNCIÓN PARA REPARTIR LAS PIEZAS
+//  --- NUEVO: DISPARAR CON EL BOTÓN A ---
+controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
+    let disparo: Sprite;
+    if (mi_jugador) {
+        //  Crea un proyectil de plasma azul cian
+        disparo = sprites.createProjectileFromSprite(img`
+            . . 9 9 . .
+            . 9 6 6 9 .
+            9 6 1 1 6 9
+            9 6 1 1 6 9
+            . 9 6 6 9 .
+            . . 9 9 . .
+        `, mi_jugador, dir_x, dir_y)
+        music.pewPew.play()
+    }
+    
+})
+//  --- NUEVO: COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
+//  Asignamos el evento de choque Proyectil - Enemigo
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overlap_disparo(sprite: Sprite, otherSprite: Sprite) {
+    //  Destruye el disparo al chocar
+    sprite.destroy()
+    //  Busca la barra de vida del enemigo golpeado
+    let barra_vida = statusbars.getStatusBarAttachedTo(StatusBarKind.Health, otherSprite)
+    if (barra_vida) {
+        barra_vida.value -= 1
+        //  Efecto de daño
+        otherSprite.startEffect(effects.blizzard, 200)
+        //  Si la vida llega a 0, el enemigo muere
+        if (barra_vida.value <= 0) {
+            otherSprite.destroy(effects.disintegrate, 200)
+            music.zapped.play()
+            //  ¡SI EL QUE MUERE ES EL JEFE FINAL, GANAS EL JUEGO!
+            if (otherSprite == jefe_final) {
+                game.showLongText("¡NÚCLEO ELIMINADO! El sistema se ha restablecido.", DialogLayout.Bottom)
+                game.gameOver(true)
+            }
+            
+        }
+        
+    }
+    
+})
 function repartir_piezas() {
     //  --- PIEZA 1 ---
     let piece1 = sprites.create(assets.image`piece1`, SpriteKind.Food)
@@ -42,25 +86,27 @@ function repartir_piezas() {
     tiles.placeOnTile(piece3, tiles.getTileLocation(2, 2))
 }
 
-//  NUEVO: FUNCIÓN PARA QUE APAREZCA EL JEFE
 function aparecer_jefe() {
     
     game.showLongText("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.Bottom)
     //  Creamos al jefe final
     jefe_final = sprites.create(assets.image`boss_front`, SpriteKind.Enemy)
     //  ⬇️ EDITA AQUÍ LAS COORDENADAS DONDE APARECERÁ EL JEFE FINAL (Columna, Fila) ⬇️
-    tiles.placeOnTile(jefe_final, tiles.getTileLocation(8, 8))
+    tiles.placeOnTile(jefe_final, tiles.getTileLocation(10, 10))
+    //  NUEVO: Le ponemos su barra de vida gigante de 15 puntos
+    let barra_jefe = statusbars.create(40, 6, StatusBarKind.Health)
+    barra_jefe.attachToSprite(jefe_final)
+    barra_jefe.max = 15
+    barra_jefe.value = 15
     //  Hacemos que persiga al jugador
     jefe_final.follow(mi_jugador, 40)
 }
 
-//  MODIFICADO: LÓGICA AL RECOGER LAS PIEZAS
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
     otherSprite.destroy(effects.confetti, 500)
     info.changeScoreBy(1)
     music.baDing.play()
     if (info.score() == 3) {
-        //  En lugar de ganar, ahora invocamos al jefe
         aparecer_jefe()
     }
     
@@ -70,14 +116,12 @@ function narrar_historia() {
     game.showLongText("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes", DialogLayout.Bottom)
     game.showLongText("El servidor NEXUS-CORE ha sido infectado." + "Un virus ha tomado el control del sistema.", DialogLayout.Bottom)
     game.showLongText("Protocolo activado: 404." + "Reinicio total inminente.", DialogLayout.Bottom)
-    game.showLongText("Antes del borrado final, se libera una última defensa.", DialogLayout.Bottom)
     game.showLongText("Tú eres un Data Sweeper." + "Un robot diseñado para limpiar datos corruptos.", DialogLayout.Bottom)
-    game.showLongText("El servidor es ahora un laberinto inestable." + "Los Bugs patrullan cada sector.", DialogLayout.Bottom)
     game.showLongText("Tu misión:" + "Recuperar 3 Paquetes de Datos Vitales.", DialogLayout.Bottom)
-    game.showLongText("Cada paquete es clave para detener el reinicio.", DialogLayout.Bottom)
     game.showLongText("El virus tiene un núcleo." + "Su nombre es Root-Overwrite.", DialogLayout.Bottom)
-    game.showLongText("Cuando recuperes los 3 paquetes, el acceso al núcleo se abrirá.", DialogLayout.Bottom)
-    game.showLongText("Derrota a Root-Overwrite." + "Restaura el sistema.", DialogLayout.Bottom)
+    //  NUEVAS INSTRUCCIONES DE DISPARO
+    game.showLongText("Llevas equipado un Cañón de Limpieza de Datos. Usa el BOTÓN A para disparar.", DialogLayout.Bottom)
+    game.showLongText("Las cucarachas caerán con 2 impactos. El núcleo requerirá 15.", DialogLayout.Bottom)
     game.showLongText("El tiempo corre." + "Inicia la limpieza.", DialogLayout.Bottom)
 }
 
@@ -216,7 +260,6 @@ function mostrar_menu_inicio() {
     menu.bottom = 110
     menu.left = 50
     //  4. Lógica de selección
-    //  Usamos una función anónima (lambda)
     menu.onButtonPressed(controller.A, function on_button_pressed(selection: any, selectedIndex: any) {
         menu.close()
         if (selection == "LORE") {
@@ -234,7 +277,6 @@ function bloquear_enemigos_puentes() {
     //  Opcional: Impide que los enemigos crucen a tu sala.
     for (let bug3 of sprites.allOfKind(SpriteKind.Enemy)) {
         c = Math.idiv(bug3.x, 16)
-        //  Si intentan cruzar el puente de la columna 19 (entrada a tu sala)
         if (c == 19) {
             bug3.vx = 0
             bug3.x -= 2
@@ -247,99 +289,83 @@ function spawn_bugs(cantidad: number) {
     let bug: Sprite;
     let col_azar: number;
     let fil_azar: number;
-    //  Crea enemigos en las salas de la izquierda para dar tiempo al jugador.
+    let barra: StatusBarSprite;
     for (let index = 0; index < cantidad; index++) {
         bug = sprites.create(assets.image`
             bug_down
             `, SpriteKind.Enemy)
-        //  Generar aleatoriamente en columnas 1 a 18 (lado izquierdo/centro)
         col_azar = randint(1, 18)
         fil_azar = randint(1, 14)
         tiles.placeOnTile(bug, tiles.getTileLocation(col_azar, fil_azar))
-        //  Función de seguimiento corregida
+        //  NUEVO: Barra de vida de las cucarachas (2 puntos)
+        barra = statusbars.create(16, 2, StatusBarKind.Health)
+        barra.attachToSprite(bug)
+        barra.max = 2
+        barra.value = 2
         bug.follow(mi_jugador, 30)
     }
 }
 
 function gestionar_animaciones() {
     
-    //  Actualiza las imágenes del robot y enemigos según su dirección.
-    //  --- Animación Robot ---
+    //  --- Animación y Dirección del Robot ---
+    //  Guardamos la dirección (dir_x, dir_y) para saber a dónde disparar luego
     if (mi_jugador.vx > 0) {
-        mi_jugador.setImage(assets.image`
-            robot_right
-            `)
+        dir_x = 100
+        dir_y = 0
+        mi_jugador.setImage(assets.image`robot_right`)
     } else if (mi_jugador.vx < 0) {
-        mi_jugador.setImage(assets.image`
-            robot_left
-            `)
+        dir_x = -100
+        dir_y = 0
+        mi_jugador.setImage(assets.image`robot_left`)
     } else if (mi_jugador.vy < 0) {
-        mi_jugador.setImage(assets.image`
-            robot_up
-            `)
+        dir_x = 0
+        dir_y = -100
+        mi_jugador.setImage(assets.image`robot_up`)
     } else if (mi_jugador.vy > 0) {
-        mi_jugador.setImage(assets.image`
-            robot_front
-            `)
+        dir_x = 0
+        dir_y = 100
+        mi_jugador.setImage(assets.image`robot_front`)
     }
     
     //  --- Animación Jefe Final ---
     if (jefe_final) {
         if (jefe_final.vx > 0) {
-            jefe_final.setImage(assets.image`
-                boss_right
-                `)
+            jefe_final.setImage(assets.image`boss_right`)
         } else if (jefe_final.vx < 0) {
-            jefe_final.setImage(assets.image`
-                boss_left
-                `)
+            jefe_final.setImage(assets.image`boss_left`)
         } else if (jefe_final.vy < 0) {
-            jefe_final.setImage(assets.image`
-                boss_up
-                `)
+            jefe_final.setImage(assets.image`boss_up`)
         } else if (jefe_final.vy > 0) {
-            jefe_final.setImage(assets.image`
-                boss_front
-                `)
+            jefe_final.setImage(assets.image`boss_front`)
         }
         
     }
     
     //  --- Animación Enemigos ---
     for (let bug2 of sprites.allOfKind(SpriteKind.Enemy)) {
-        //  CORRECCIÓN: Evitamos que el jefe se anime como una cucaracha
         if (bug2 == jefe_final) {
             continue
         }
         
         if (bug2.vx > 0) {
-            bug2.setImage(assets.image`
-                bug_right
-                `)
+            bug2.setImage(assets.image`bug_right`)
         } else if (bug2.vx < 0) {
-            bug2.setImage(assets.image`
-                bug_left
-                `)
+            bug2.setImage(assets.image`bug_left`)
         } else if (bug2.vy < 0) {
-            bug2.setImage(assets.image`
-                bug_up
-                `)
+            bug2.setImage(assets.image`bug_up`)
         } else if (bug2.vy > 0) {
-            bug2.setImage(assets.image`
-                bug_down
-                `)
+            bug2.setImage(assets.image`bug_down`)
         }
         
     }
 }
 
 //  --- INICIO DEL PROGRAMA ---
-//  En lugar de llamar a inicializar_juego() directo, llamamos al menú
 mostrar_menu_inicio()
 //  --- BUCLE PRINCIPAL ---
 game.onUpdate(function on_on_update() {
     if (mi_jugador) {
-        //  Solo si el jugador ya fue creado
         gestionar_animaciones()
         bloquear_enemigos_puentes()
     }
