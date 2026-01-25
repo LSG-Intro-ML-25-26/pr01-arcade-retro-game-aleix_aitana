@@ -148,7 +148,7 @@ def narrar_historia():
     # INSTRUCCIONES DE DISPARO
     game.show_long_text("Llevas equipado un Cañón de Limpieza de Datos. Usa el BOTÓN A para disparar.",
         DialogLayout.BOTTOM)
-    game.show_long_text("Las cucarachas caerán con 2 impactos. El núcleo requerirá 15.",
+    game.show_long_text("Los bugs caerán con 2 impactos. El núcleo requerirá 15.",
         DialogLayout.BOTTOM)
     game.show_long_text("El tiempo corre." + "Inicia la limpieza.",
         DialogLayout.BOTTOM)
