@@ -1,15 +1,13 @@
 """
---- VARIABLES GLOBALES ---
+--- VARIABLES GLOBALES --- 
 """
 mi_jugador: Sprite = None
 menu: miniMenu.MenuSprite = None
 # Variable global para el jefe final
 jefe_final: Sprite = None
-
 # Variables para recordar hacia dónde mira el robot y poder disparar en esa dirección
 dir_x = 0
 dir_y = 100
-
 def inicializar_juego():
     global mi_jugador
     # Configura el mapa y coloca al robot en la zona azul.
@@ -26,34 +24,38 @@ def inicializar_juego():
     # Configurar movimiento y cámara
     controller.move_sprite(mi_jugador)
     scene.camera_follow_sprite(mi_jugador)
+    # --- NUEVO: VIDAS Y CRONÓMETRO ---
     info.set_life(3)
-    
+    info.start_countdown(180)
+    # 180 segundos = 3 minutos
     # Ponemos el contador a 0
     info.set_score(0)
-    
-    # 3. GENERAR ENEMIGOS (Lejos de la zona azul)
-    spawn_bugs(5)
-    
+    # 3. GENERAR ENEMIGOS POR HABITACIONES
+    spawn_bugs()
     # Llamamos a la función que crea las piezas
     repartir_piezas()
+# --- DISPARAR CON EL BOTÓN A ---
 
-# --- NUEVO: DISPARAR CON EL BOTÓN A ---
 def on_a_pressed():
     if mi_jugador:
         # Crea un proyectil de plasma azul cian
         disparo = sprites.create_projectile_from_sprite(img("""
-            . . 9 9 . .
-            . 9 6 6 9 .
-            9 6 1 1 6 9
-            9 6 1 1 6 9
-            . 9 6 6 9 .
-            . . 9 9 . .
-        """), mi_jugador, dir_x, dir_y)
+                . . 9 9 . .
+                . 9 6 6 9 .
+                9 6 1 1 6 9
+                9 6 1 1 6 9
+                . 9 6 6 9 .
+                . . 9 9 . .
+                """),
+            mi_jugador,
+            dir_x,
+            dir_y)
         music.pew_pew.play()
-
 controller.A.on_event(ControllerButtonEvent.PRESSED, on_a_pressed)
 
-# --- NUEVO: COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
+# --- COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
+# Asignamos el evento de choque Proyectil - Enemigo
+
 def on_on_overlap_disparo(sprite, otherSprite):
     # Destruye el disparo al chocar
     sprite.destroy()
@@ -63,78 +65,93 @@ def on_on_overlap_disparo(sprite, otherSprite):
         barra_vida.value -= 1
         # Efecto de daño
         otherSprite.start_effect(effects.blizzard, 200)
-        
         # Si la vida llega a 0, el enemigo muere
         if barra_vida.value <= 0:
             otherSprite.destroy(effects.disintegrate, 200)
             music.zapped.play()
-            
             # ¡SI EL QUE MUERE ES EL JEFE FINAL, GANAS EL JUEGO!
             if otherSprite == jefe_final:
-                game.show_long_text("¡NÚCLEO ELIMINADO! El sistema se ha restablecido.", DialogLayout.BOTTOM)
+                game.show_long_text("¡NÚCLEO ELIMINADO! El sistema se ha restablecido.",
+                    DialogLayout.BOTTOM)
                 game.game_over(True)
+sprites.on_overlap(SpriteKind.projectile,
+    SpriteKind.enemy,
+    on_on_overlap_disparo)
 
-# Asignamos el evento de choque Proyectil - Enemigo
-sprites.on_overlap(SpriteKind.projectile, SpriteKind.enemy, on_on_overlap_disparo)
+# --- NUEVO: COLISIÓN DEL JUGADOR CONTRA ENEMIGOS (PIERDES VIDA) ---
 
+def on_on_overlap_enemigo(sprite2, otherSprite2):
+    # Quitamos una vida
+    info.change_life_by(-1)
+    # Efecto de dolor
+    music.knock.play()
+    scene.camera_shake(4, 500)
+    # Pausa de 1 segundo (1000 ms) para dar invulnerabilidad y que no mueras al instante
+    pause(1000)
+sprites.on_overlap(SpriteKind.player, SpriteKind.enemy, on_on_overlap_enemigo)
 
 def repartir_piezas():
     # --- PIEZA 1 ---
-    piece1 = sprites.create(assets.image("""piece1"""), SpriteKind.food)
-    tiles.place_on_tile(piece1, tiles.get_tile_location(16,2))
-
+    piece1 = sprites.create(assets.image("""
+        piece1
+        """), SpriteKind.food)
+    tiles.place_on_tile(piece1, tiles.get_tile_location(16, 2))
     # --- PIEZA 2 ---
-    piece2 = sprites.create(assets.image("""piece2"""), SpriteKind.food)
+    piece2 = sprites.create(assets.image("""
+        piece2
+        """), SpriteKind.food)
     tiles.place_on_tile(piece2, tiles.get_tile_location(27, 17))
-
     # --- PIEZA 3 ---
-    piece3 = sprites.create(assets.image("""piece3"""), SpriteKind.food)
+    piece3 = sprites.create(assets.image("""
+        piece3
+        """), SpriteKind.food)
     tiles.place_on_tile(piece3, tiles.get_tile_location(2, 2))
-
 def aparecer_jefe():
     global jefe_final
-    game.show_long_text("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.BOTTOM)
-    
+    game.show_long_text("¡PELIGRO! El núcleo Root-Overwrite ha despertado.",
+        DialogLayout.BOTTOM)
     # Creamos al jefe final
-    jefe_final = sprites.create(assets.image("""boss_front"""), SpriteKind.enemy)
-    
-    # ⬇️ EDITA AQUÍ LAS COORDENADAS DONDE APARECERÁ EL JEFE FINAL (Columna, Fila) ⬇️
+    jefe_final = sprites.create(assets.image("""
+        boss_front
+        """), SpriteKind.enemy)
     tiles.place_on_tile(jefe_final, tiles.get_tile_location(10, 10))
-    
-    # NUEVO: Le ponemos su barra de vida gigante de 15 puntos
+    # Le ponemos su barra de vida gigante de 15 puntos
     barra_jefe = statusbars.create(40, 6, StatusBarKind.health)
     barra_jefe.attach_to_sprite(jefe_final)
     barra_jefe.max = 15
     barra_jefe.value = 15
-    
-    # Hacemos que persiga al jugador
+    # Hacemos que persiga al jugador (El jefe SÍ te persigue siempre)
     jefe_final.follow(mi_jugador, 40)
 
-def on_on_overlap(sprite, otherSprite):
-    otherSprite.destroy(effects.confetti, 500)
+def on_on_overlap(sprite3, otherSprite3):
+    otherSprite3.destroy(effects.confetti, 500)
     info.change_score_by(1)
     music.ba_ding.play()
-    
     if info.score() == 3:
         aparecer_jefe()
-
 sprites.on_overlap(SpriteKind.player, SpriteKind.food, on_on_overlap)
 
 def narrar_historia():
     # Muestra cuadros de texto explicando el Lore del juego.
-    game.show_long_text("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes", DialogLayout.BOTTOM)
-    game.show_long_text("El servidor NEXUS-CORE ha sido infectado." + "Un virus ha tomado el control del sistema.", DialogLayout.BOTTOM)
-    game.show_long_text("Protocolo activado: 404." + "Reinicio total inminente.", DialogLayout.BOTTOM)
-    game.show_long_text("Tú eres un Data Sweeper." + "Un robot diseñado para limpiar datos corruptos.", DialogLayout.BOTTOM)
-    game.show_long_text("Tu misión:" + "Recuperar 3 Paquetes de Datos Vitales.", DialogLayout.BOTTOM)
-    game.show_long_text("El virus tiene un núcleo." + "Su nombre es Root-Overwrite.", DialogLayout.BOTTOM)
-    
-    # NUEVAS INSTRUCCIONES DE DISPARO
-    game.show_long_text("Llevas equipado un Cañón de Limpieza de Datos. Usa el BOTÓN A para disparar.", DialogLayout.BOTTOM)
-    game.show_long_text("Las cucarachas caerán con 2 impactos. El núcleo requerirá 15.", DialogLayout.BOTTOM)
-    
-    game.show_long_text("El tiempo corre." + "Inicia la limpieza.", DialogLayout.BOTTOM)
-
+    game.show_long_text("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes",
+        DialogLayout.BOTTOM)
+    game.show_long_text("El servidor NEXUS-CORE ha sido infectado." + "Un virus ha tomado el control del sistema.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Protocolo activado: 404." + "Reinicio total inminente.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Tú eres un Data Sweeper." + "Un robot diseñado para limpiar datos corruptos.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Tu misión:" + "Recuperar 3 Paquetes de Datos Vitales.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("El virus tiene un núcleo." + "Su nombre es Root-Overwrite.",
+        DialogLayout.BOTTOM)
+    # INSTRUCCIONES DE DISPARO
+    game.show_long_text("Llevas equipado un Cañón de Limpieza de Datos. Usa el BOTÓN A para disparar.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("Las cucarachas caerán con 2 impactos. El núcleo requerirá 15.",
+        DialogLayout.BOTTOM)
+    game.show_long_text("El tiempo corre." + "Inicia la limpieza.",
+        DialogLayout.BOTTOM)
 def mostrar_menu_inicio():
     global menu
     # 1. Configuramos el fondo
@@ -258,7 +275,6 @@ def mostrar_menu_inicio():
         fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         """))
     # 2. Creamos el menú directamente como una variable local primero
     menu = miniMenu.create_menu(miniMenu.create_menu_item("JUGAR"),
@@ -273,6 +289,7 @@ def mostrar_menu_inicio():
     menu.bottom = 110
     menu.left = 50
     # 4. Lógica de selección
+    
     def on_button_pressed(selection, selectedIndex):
         menu.close()
         if selection == "LORE":
@@ -282,75 +299,135 @@ def mostrar_menu_inicio():
             inicializar_juego()
     menu.on_button_pressed(controller.A, on_button_pressed)
     
-def bloquear_enemigos_puentes():
-    # Opcional: Impide que los enemigos crucen a tu sala.
-    for bug3 in sprites.all_of_kind(SpriteKind.enemy):
-        c = Math.idiv(bug3.x, 16)
-        if c == 19:
-            bug3.vx = 0
-            bug3.x -= 2
-
-def spawn_bugs(cantidad: number):
-    for index in range(cantidad):
+# --- APARICIÓN DE ENEMIGOS: AHORA SE MUEVEN ALEATORIAMENTE ---
+def spawn_bugs():
+    # Función auxiliar para crear 1 bug en unas coordenadas concretas
+    def crear_bug(c: number, f: number):
         bug = sprites.create(assets.image("""
             bug_down
             """), SpriteKind.enemy)
-        col_azar = randint(1, 18)
-        fil_azar = randint(1, 14)
-        tiles.place_on_tile(bug, tiles.get_tile_location(col_azar, fil_azar))
-        
-        # NUEVO: Barra de vida de las cucarachas (2 puntos)
+        tiles.place_on_tile(bug, tiles.get_tile_location(c, f))
+        # Les ponemos su barra de vida (2 puntos)
         barra = statusbars.create(16, 2, StatusBarKind.health)
         barra.attach_to_sprite(bug)
         barra.max = 2
         barra.value = 2
-        
-        bug.follow(mi_jugador, 30)
-
+        # NUEVO: Movimiento libre y aleatorio en su sala
+        bug.set_bounce_on_wall(True)
+        # Rebotan contra los muros rojos
+        bug.vx = randint(-25, 25)
+        # Velocidad aleatoria X
+        bug.vy = randint(-25, 25)
+    # Velocidad aleatoria Y
+    # Habitacion Pieza 3 (Arriba-Izquierda)
+    crear_bug(3, 4)
+    crear_bug(5, 2)
+    crear_bug(2, 6)
+    # Nueva
+    # Habitacion Pieza 1 (Arriba-Derecha)
+    crear_bug(14, 3)
+    crear_bug(18, 2)
+    crear_bug(16, 5)
+    # Nueva
+    # Habitacion Pieza 2 (Abajo-Derecha)
+    crear_bug(25, 16)
+    crear_bug(28, 15)
+    crear_bug(26, 18)
+    # Nueva
+    # Sala Central / Sala Final del Boss
+    crear_bug(10, 8)
+# Solo una haciendo guardia
+# --- NUEVO: INTELIGENCIA ARTIFICIAL (DETECCIÓN DE CERCANÍA) ---
+def gestionar_ia_enemigos():
+    for bug2 in sprites.all_of_kind(SpriteKind.enemy):
+        # El jefe no patrulla, siempre persigue
+        if bug2 == jefe_final:
+            continue
+        # Calcular distancia en píxeles (5 baldosas * 16 px = 80 píxeles)
+        dist_x = abs(bug2.x - mi_jugador.x)
+        dist_y = abs(bug2.y - mi_jugador.y)
+        if dist_x < 80 and dist_y < 80:
+            # ESTÁS EN RANGO: Te ha visto, te persigue
+            bug2.follow(mi_jugador, 35)
+        else:
+            # FUERA DE RANGO: Deja de perseguirte
+            bug2.follow(mi_jugador, 0)
+            # Si se ha quedado quieto, le damos un empujón aleatorio para que siga patrullando
+            if bug2.vx == 0 and bug2.vy == 0:
+                bug2.vx = randint(-25, 25)
+                bug2.vy = randint(-25, 25)
 def gestionar_animaciones():
-    global jefe_final, dir_x, dir_y
+    global dir_x, dir_y
     # --- Animación y Dirección del Robot ---
     # Guardamos la dirección (dir_x, dir_y) para saber a dónde disparar luego
     if mi_jugador.vx > 0:
-        dir_x = 100; dir_y = 0
-        mi_jugador.set_image(assets.image("""robot_right"""))
+        dir_x = 100
+        dir_y = 0
+        mi_jugador.set_image(assets.image("""
+            robot_right
+            """))
     elif mi_jugador.vx < 0:
-        dir_x = -100; dir_y = 0
-        mi_jugador.set_image(assets.image("""robot_left"""))
+        dir_x = -100
+        dir_y = 0
+        mi_jugador.set_image(assets.image("""
+            robot_left
+            """))
     elif mi_jugador.vy < 0:
-        dir_x = 0; dir_y = -100
-        mi_jugador.set_image(assets.image("""robot_up"""))
+        dir_x = 0
+        dir_y = -100
+        mi_jugador.set_image(assets.image("""
+            robot_up
+            """))
     elif mi_jugador.vy > 0:
-        dir_x = 0; dir_y = 100
-        mi_jugador.set_image(assets.image("""robot_front"""))
-            
+        dir_x = 0
+        dir_y = 100
+        mi_jugador.set_image(assets.image("""
+            robot_front
+            """))
     # --- Animación Jefe Final ---
     if jefe_final:
         if jefe_final.vx > 0:
-            jefe_final.set_image(assets.image("""boss_right"""))
+            jefe_final.set_image(assets.image("""
+                boss_right
+                """))
         elif jefe_final.vx < 0:
-            jefe_final.set_image(assets.image("""boss_left"""))
+            jefe_final.set_image(assets.image("""
+                boss_left
+                """))
         elif jefe_final.vy < 0:
-            jefe_final.set_image(assets.image("""boss_up"""))
+            jefe_final.set_image(assets.image("""
+                boss_up
+                """))
         elif jefe_final.vy > 0:
-            jefe_final.set_image(assets.image("""boss_front"""))
-
+            jefe_final.set_image(assets.image("""
+                boss_front
+                """))
     # --- Animación Enemigos ---
-    for bug2 in sprites.all_of_kind(SpriteKind.enemy):
-        if bug2 == jefe_final:
+    for bug22 in sprites.all_of_kind(SpriteKind.enemy):
+        if bug22 == jefe_final:
             continue
-        if bug2.vx > 0: bug2.set_image(assets.image("""bug_right"""))
-        elif bug2.vx < 0: bug2.set_image(assets.image("""bug_left"""))
-        elif bug2.vy < 0: bug2.set_image(assets.image("""bug_up"""))
-        elif bug2.vy > 0: bug2.set_image(assets.image("""bug_down"""))
-
+        if bug22.vx > 0:
+            bug22.set_image(assets.image("""
+                bug_right
+                """))
+        elif bug22.vx < 0:
+            bug22.set_image(assets.image("""
+                bug_left
+                """))
+        elif bug22.vy < 0:
+            bug22.set_image(assets.image("""
+                bug_up
+                """))
+        elif bug22.vy > 0:
+            bug22.set_image(assets.image("""
+                bug_down
+                """))
 # --- INICIO DEL PROGRAMA ---
 mostrar_menu_inicio()
-
 # --- BUCLE PRINCIPAL ---
+
 def on_on_update():
     if mi_jugador:
+        gestionar_ia_enemigos()
         gestionar_animaciones()
-        bloquear_enemigos_puentes()
-
 game.on_update(on_on_update)
