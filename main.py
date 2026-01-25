@@ -5,6 +5,7 @@ mi_jugador: Sprite = None
 menu: miniMenu.MenuSprite = None
 # Variable global para el jefe final
 jefe_final: Sprite = None
+
 # Variables para recordar hacia dónde mira el robot y poder disparar en esa dirección
 dir_x = 0
 dir_y = 100
@@ -73,6 +74,8 @@ def on_on_overlap_disparo(sprite, otherSprite):
             if otherSprite == jefe_final:
                 game.show_long_text("¡NÚCLEO ELIMINADO! El sistema se ha restablecido.",
                     DialogLayout.BOTTOM)
+                tiempo_final = info.countdown()
+                info.set_score(tiempo_final)
                 game.game_over(True)
 sprites.on_overlap(SpriteKind.projectile,
     SpriteKind.enemy,
@@ -83,6 +86,8 @@ sprites.on_overlap(SpriteKind.projectile,
 def on_on_overlap_enemigo(sprite2, otherSprite2):
     # Quitamos una vida
     info.change_life_by(-1)
+    if info.life() <= 0:
+        info.set_score(0)
     # Efecto de dolor
     music.knock.play()
     scene.camera_shake(4, 500)

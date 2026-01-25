@@ -54,6 +54,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
 //  --- COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
 //  Asignamos el evento de choque Proyectil - Enemigo
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overlap_disparo(sprite: Sprite, otherSprite: Sprite) {
+    let tiempo_final: number;
     //  Destruye el disparo al chocar
     sprite.destroy()
     //  Busca la barra de vida del enemigo golpeado
@@ -69,6 +70,8 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overla
             //  ¡SI EL QUE MUERE ES EL JEFE FINAL, GANAS EL JUEGO!
             if (otherSprite == jefe_final) {
                 game.showLongText("¡NÚCLEO ELIMINADO! El sistema se ha restablecido.", DialogLayout.Bottom)
+                tiempo_final = info.countdown()
+                info.setScore(tiempo_final)
                 game.gameOver(true)
             }
             
@@ -81,6 +84,10 @@ sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overla
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap_enemigo(sprite2: Sprite, otherSprite2: Sprite) {
     //  Quitamos una vida
     info.changeLifeBy(-1)
+    if (info.life() <= 0) {
+        info.setScore(0)
+    }
+    
     //  Efecto de dolor
     music.knock.play()
     scene.cameraShake(4, 500)
