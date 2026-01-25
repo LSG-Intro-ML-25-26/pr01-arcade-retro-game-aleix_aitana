@@ -1,8 +1,9 @@
 """
---- VARIABLES GLOBALES --- 
+--- VARIABLES GLOBALES ---
 """
 mi_jugador: Sprite = None
 menu: miniMenu.MenuSprite = None
+
 def inicializar_juego():
     global mi_jugador
     # Configura el mapa y coloca al robot en la zona azul.
@@ -21,8 +22,44 @@ def inicializar_juego():
     controller.move_sprite(mi_jugador)
     scene.camera_follow_sprite(mi_jugador)
     info.set_life(3)
+    
+    # NUEVO: Ponemos el contador a 0
+    info.set_score(0)
+    
     # 3. GENERAR ENEMIGOS (Lejos de la zona azul)
     spawn_bugs(5)
+    
+    # NUEVO: Llamamos a la función que crea las piezas
+    repartir_piezas()
+
+# NUEVO: FUNCIÓN PARA REPARTIR LAS PIEZAS
+def repartir_piezas():
+    # --- PIEZA 1 ---
+    piece1 = sprites.create(assets.image("""piece1"""), SpriteKind.food)
+    tiles.place_on_tile(piece1, tiles.get_tile_location(16,2))
+
+    # --- PIEZA 2 ---
+    piece2 = sprites.create(assets.image("""piece2"""), SpriteKind.food)
+    # EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 2 (Columna, Fila)
+    tiles.place_on_tile(piece2, tiles.get_tile_location(27, 17))
+
+    # --- PIEZA 3 ---
+    piece3 = sprites.create(assets.image("""piece3"""), SpriteKind.food)
+    # EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 3 (Columna, Fila)
+    tiles.place_on_tile(piece3, tiles.get_tile_location(2, 2))
+
+# NUEVO: LÓGICA AL RECOGER LAS PIEZAS
+def on_on_overlap(sprite, otherSprite):
+    otherSprite.destroy(effects.confetti, 500)
+    info.change_score_by(1)
+    music.ba_ding.play()
+    
+    if info.score() == 3:
+        game.show_long_text("¡NÚCLEO ACCESIBLE! Has salvado el servidor NEXUS-CORE.", DialogLayout.BOTTOM)
+        game.game_over(True)
+
+sprites.on_overlap(SpriteKind.player, SpriteKind.food, on_on_overlap)
+
 def narrar_historia():
     # Muestra cuadros de texto explicando el Lore del juego.
     game.show_long_text("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes",
@@ -49,6 +86,7 @@ def narrar_historia():
         DialogLayout.BOTTOM)
     game.show_long_text("El tiempo corre." + "Inicia la limpieza.",
         DialogLayout.BOTTOM)
+
 def mostrar_menu_inicio():
     global menu
     # 1. Configuramos el fondo
@@ -206,6 +244,7 @@ def bloquear_enemigos_puentes():
         if c == 19:
             bug3.vx = 0
             bug3.x -= 2
+
 def spawn_bugs(cantidad: number):
     # Crea enemigos en las salas de la izquierda para dar tiempo al jugador.
     for index in range(cantidad):
@@ -218,6 +257,7 @@ def spawn_bugs(cantidad: number):
         tiles.place_on_tile(bug, tiles.get_tile_location(col_azar, fil_azar))
         # Función de seguimiento corregida
         bug.follow(mi_jugador, 30)
+
 def gestionar_animaciones():
     # Actualiza las imágenes del robot y enemigos según su dirección.
     # --- Animación Robot ---
@@ -255,14 +295,16 @@ def gestionar_animaciones():
             bug2.set_image(assets.image("""
                 bug_down
                 """))
+
 # --- INICIO DEL PROGRAMA ---
 # En lugar de llamar a inicializar_juego() directo, llamamos al menú
 mostrar_menu_inicio()
-# --- BUCLE PRINCIPAL ---
 
+# --- BUCLE PRINCIPAL ---
 def on_on_update():
     if mi_jugador:
         # Solo si el jugador ya fue creado
         gestionar_animaciones()
         bloquear_enemigos_puentes()
+
 game.on_update(on_on_update)

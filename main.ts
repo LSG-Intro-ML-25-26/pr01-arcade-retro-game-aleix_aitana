@@ -19,10 +19,40 @@ function inicializar_juego() {
     controller.moveSprite(mi_jugador)
     scene.cameraFollowSprite(mi_jugador)
     info.setLife(3)
+    //  NUEVO: Ponemos el contador a 0
+    info.setScore(0)
     //  3. GENERAR ENEMIGOS (Lejos de la zona azul)
     spawn_bugs(5)
+    //  NUEVO: Llamamos a la función que crea las piezas
+    repartir_piezas()
 }
 
+//  NUEVO: FUNCIÓN PARA REPARTIR LAS PIEZAS
+function repartir_piezas() {
+    //  --- PIEZA 1 ---
+    let piece1 = sprites.create(assets.image`piece1`, SpriteKind.Food)
+    tiles.placeOnTile(piece1, tiles.getTileLocation(16, 2))
+    //  --- PIEZA 2 ---
+    let piece2 = sprites.create(assets.image`piece2`, SpriteKind.Food)
+    //  EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 2 (Columna, Fila)
+    tiles.placeOnTile(piece2, tiles.getTileLocation(27, 17))
+    //  --- PIEZA 3 ---
+    let piece3 = sprites.create(assets.image`piece3`, SpriteKind.Food)
+    //  EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 3 (Columna, Fila)
+    tiles.placeOnTile(piece3, tiles.getTileLocation(2, 2))
+}
+
+//  NUEVO: LÓGICA AL RECOGER LAS PIEZAS
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
+    otherSprite.destroy(effects.confetti, 500)
+    info.changeScoreBy(1)
+    music.baDing.play()
+    if (info.score() == 3) {
+        game.showLongText("¡NÚCLEO ACCESIBLE! Has salvado el servidor NEXUS-CORE.", DialogLayout.Bottom)
+        game.gameOver(true)
+    }
+    
+})
 function narrar_historia() {
     //  Muestra cuadros de texto explicando el Lore del juego.
     game.showLongText("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes", DialogLayout.Bottom)
