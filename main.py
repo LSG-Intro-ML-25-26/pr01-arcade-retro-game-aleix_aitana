@@ -3,6 +3,8 @@
 """
 mi_jugador: Sprite = None
 menu: miniMenu.MenuSprite = None
+# Variable global para el jefe final
+jefe_final: Sprite = None
 
 def inicializar_juego():
     global mi_jugador
@@ -40,23 +42,35 @@ def repartir_piezas():
 
     # --- PIEZA 2 ---
     piece2 = sprites.create(assets.image("""piece2"""), SpriteKind.food)
-    # EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 2 (Columna, Fila)
     tiles.place_on_tile(piece2, tiles.get_tile_location(27, 17))
 
     # --- PIEZA 3 ---
     piece3 = sprites.create(assets.image("""piece3"""), SpriteKind.food)
-    # EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 3 (Columna, Fila)
     tiles.place_on_tile(piece3, tiles.get_tile_location(2, 2))
 
-# NUEVO: LÓGICA AL RECOGER LAS PIEZAS
+# NUEVO: FUNCIÓN PARA QUE APAREZCA EL JEFE
+def aparecer_jefe():
+    global jefe_final
+    game.show_long_text("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.BOTTOM)
+    
+    # Creamos al jefe final
+    jefe_final = sprites.create(assets.image("""boss_front"""), SpriteKind.enemy)
+    
+    # ⬇️ EDITA AQUÍ LAS COORDENADAS DONDE APARECERÁ EL JEFE FINAL (Columna, Fila) ⬇️
+    tiles.place_on_tile(jefe_final, tiles.get_tile_location(8, 8))
+    
+    # Hacemos que persiga al jugador
+    jefe_final.follow(mi_jugador, 40)
+
+# MODIFICADO: LÓGICA AL RECOGER LAS PIEZAS
 def on_on_overlap(sprite, otherSprite):
     otherSprite.destroy(effects.confetti, 500)
     info.change_score_by(1)
     music.ba_ding.play()
     
     if info.score() == 3:
-        game.show_long_text("¡NÚCLEO ACCESIBLE! Has salvado el servidor NEXUS-CORE.", DialogLayout.BOTTOM)
-        game.game_over(True)
+        # En lugar de ganar, ahora invocamos al jefe
+        aparecer_jefe()
 
 sprites.on_overlap(SpriteKind.player, SpriteKind.food, on_on_overlap)
 
@@ -259,6 +273,7 @@ def spawn_bugs(cantidad: number):
         bug.follow(mi_jugador, 30)
 
 def gestionar_animaciones():
+    global jefe_final
     # Actualiza las imágenes del robot y enemigos según su dirección.
     # --- Animación Robot ---
     if mi_jugador.vx > 0:
@@ -277,8 +292,32 @@ def gestionar_animaciones():
         mi_jugador.set_image(assets.image("""
             robot_front
             """))
+            
+    # --- Animación Jefe Final ---
+    if jefe_final:
+        if jefe_final.vx > 0:
+            jefe_final.set_image(assets.image("""
+                boss_right
+                """))
+        elif jefe_final.vx < 0:
+            jefe_final.set_image(assets.image("""
+                boss_left
+                """))
+        elif jefe_final.vy < 0:
+            jefe_final.set_image(assets.image("""
+                boss_up
+                """))
+        elif jefe_final.vy > 0:
+            jefe_final.set_image(assets.image("""
+                boss_front
+                """))
+
     # --- Animación Enemigos ---
     for bug2 in sprites.all_of_kind(SpriteKind.enemy):
+        # CORRECCIÓN: Evitamos que el jefe se anime como una cucaracha
+        if bug2 == jefe_final:
+            continue
+            
         if bug2.vx > 0:
             bug2.set_image(assets.image("""
                 bug_right

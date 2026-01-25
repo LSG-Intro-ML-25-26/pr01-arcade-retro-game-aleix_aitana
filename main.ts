@@ -1,6 +1,8 @@
 /** --- VARIABLES GLOBALES --- */
 let mi_jugador : Sprite = null
 let menu : miniMenu.MenuSprite = null
+//  Variable global para el jefe final
+let jefe_final : Sprite = null
 function inicializar_juego() {
     
     //  Configura el mapa y coloca al robot en la zona azul.
@@ -34,22 +36,32 @@ function repartir_piezas() {
     tiles.placeOnTile(piece1, tiles.getTileLocation(16, 2))
     //  --- PIEZA 2 ---
     let piece2 = sprites.create(assets.image`piece2`, SpriteKind.Food)
-    //  EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 2 (Columna, Fila)
     tiles.placeOnTile(piece2, tiles.getTileLocation(27, 17))
     //  --- PIEZA 3 ---
     let piece3 = sprites.create(assets.image`piece3`, SpriteKind.Food)
-    //  EDITA AQUÍ LAS COORDENADAS DE LA PIEZA 3 (Columna, Fila)
     tiles.placeOnTile(piece3, tiles.getTileLocation(2, 2))
 }
 
-//  NUEVO: LÓGICA AL RECOGER LAS PIEZAS
+//  NUEVO: FUNCIÓN PARA QUE APAREZCA EL JEFE
+function aparecer_jefe() {
+    
+    game.showLongText("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.Bottom)
+    //  Creamos al jefe final
+    jefe_final = sprites.create(assets.image`boss_front`, SpriteKind.Enemy)
+    //  ⬇️ EDITA AQUÍ LAS COORDENADAS DONDE APARECERÁ EL JEFE FINAL (Columna, Fila) ⬇️
+    tiles.placeOnTile(jefe_final, tiles.getTileLocation(8, 8))
+    //  Hacemos que persiga al jugador
+    jefe_final.follow(mi_jugador, 40)
+}
+
+//  MODIFICADO: LÓGICA AL RECOGER LAS PIEZAS
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite: Sprite, otherSprite: Sprite) {
     otherSprite.destroy(effects.confetti, 500)
     info.changeScoreBy(1)
     music.baDing.play()
     if (info.score() == 3) {
-        game.showLongText("¡NÚCLEO ACCESIBLE! Has salvado el servidor NEXUS-CORE.", DialogLayout.Bottom)
-        game.gameOver(true)
+        //  En lugar de ganar, ahora invocamos al jefe
+        aparecer_jefe()
     }
     
 })
@@ -250,6 +262,7 @@ function spawn_bugs(cantidad: number) {
 }
 
 function gestionar_animaciones() {
+    
     //  Actualiza las imágenes del robot y enemigos según su dirección.
     //  --- Animación Robot ---
     if (mi_jugador.vx > 0) {
@@ -270,8 +283,35 @@ function gestionar_animaciones() {
             `)
     }
     
+    //  --- Animación Jefe Final ---
+    if (jefe_final) {
+        if (jefe_final.vx > 0) {
+            jefe_final.setImage(assets.image`
+                boss_right
+                `)
+        } else if (jefe_final.vx < 0) {
+            jefe_final.setImage(assets.image`
+                boss_left
+                `)
+        } else if (jefe_final.vy < 0) {
+            jefe_final.setImage(assets.image`
+                boss_up
+                `)
+        } else if (jefe_final.vy > 0) {
+            jefe_final.setImage(assets.image`
+                boss_front
+                `)
+        }
+        
+    }
+    
     //  --- Animación Enemigos ---
     for (let bug2 of sprites.allOfKind(SpriteKind.Enemy)) {
+        //  CORRECCIÓN: Evitamos que el jefe se anime como una cucaracha
+        if (bug2 == jefe_final) {
+            continue
+        }
+        
         if (bug2.vx > 0) {
             bug2.setImage(assets.image`
                 bug_right
