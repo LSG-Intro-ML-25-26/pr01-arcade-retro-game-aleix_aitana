@@ -1,17 +1,16 @@
 """
---- VARIABLES GLOBALES --- 
+--- VARIABLES GLOBALES ---
 """
 mi_jugador: Sprite = None
 menu: miniMenu.MenuSprite = None
 # Variable global para el jefe final
 jefe_final: Sprite = None
-
 # Variables para recordar hacia dónde mira el robot y poder disparar en esa dirección
 dir_x = 0
 dir_y = 100
+
 def inicializar_juego():
     global mi_jugador
-    # Configura el mapa y coloca al robot en la zona azul.
     # 1. CARGAR EL MAPA
     tiles.set_current_tilemap(tilemap("""
         level
@@ -20,7 +19,7 @@ def inicializar_juego():
     mi_jugador = sprites.create(assets.image("""
         robot_front
         """), SpriteKind.player)
-    # Coordenadas ajustadas al círculo azul de tu imagen:
+    # Coordenadas personaje:
     tiles.place_on_tile(mi_jugador, tiles.get_tile_location(34, 16))
     # Configurar movimiento y cámara
     controller.move_sprite(mi_jugador)
@@ -35,8 +34,8 @@ def inicializar_juego():
     spawn_bugs()
     # Llamamos a la función que crea las piezas
     repartir_piezas()
-# --- DISPARAR CON EL BOTÓN A ---
 
+# --- DISPARAR CON EL BOTÓN A ---
 def on_a_pressed():
     if mi_jugador:
         # Crea un proyectil de plasma azul cian
@@ -56,7 +55,6 @@ controller.A.on_event(ControllerButtonEvent.PRESSED, on_a_pressed)
 
 # --- COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
 # Asignamos el evento de choque Proyectil - Enemigo
-
 def on_on_overlap_disparo(sprite, otherSprite):
     # Destruye el disparo al chocar
     sprite.destroy()
@@ -82,7 +80,6 @@ sprites.on_overlap(SpriteKind.projectile,
     on_on_overlap_disparo)
 
 # --- COLISIÓN DEL JUGADOR CONTRA ENEMIGOS (PIERDES VIDA) ---
-
 def on_on_overlap_enemigo(sprite2, otherSprite2):
     # Quitamos una vida
     info.change_life_by(-1)
@@ -111,6 +108,7 @@ def repartir_piezas():
         piece3
         """), SpriteKind.food)
     tiles.place_on_tile(piece3, tiles.get_tile_location(2, 2))
+
 def aparecer_jefe():
     global jefe_final
     game.show_long_text("¡PELIGRO! El núcleo Root-Overwrite ha despertado.",
@@ -119,7 +117,7 @@ def aparecer_jefe():
     jefe_final = sprites.create(assets.image("""
         boss_front
         """), SpriteKind.enemy)
-    # COORDENADAS DONDE APARECERÁ EL JEFE FINAL (Columna, Fila) 
+    # COORDENADAS DONDE APARECERA EL JEFE FINAL (Columna, Fila)
     tiles.place_on_tile(jefe_final, tiles.get_tile_location(10, 10))
     # Le ponemos su barra de vida gigante de 15 puntos
     barra_jefe = statusbars.create(40, 6, StatusBarKind.health)
@@ -158,6 +156,7 @@ def narrar_historia():
         DialogLayout.BOTTOM)
     game.show_long_text("El tiempo corre." + "Inicia la limpieza.",
         DialogLayout.BOTTOM)
+
 def mostrar_menu_inicio():
     global menu
     # 1. Configuramos el fondo
@@ -178,7 +177,7 @@ def mostrar_menu_inicio():
         88888888888888888888888888888888888888888888888888888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88af8ffccff88fff8fff8ff8ffffffffffffffff
         88888888888888888888888888888888888888888888888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88f8888cff888888fff88f8f8f8ffffffffffff
         88888888888888888888888888888888888888888888888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa888aaaaaaaaaaaaaa88888f8888fff88888888fffffff88ffffffffffff
-        888888888888888888888888888888888888888aaa8888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88888aaaaa888aaaaa888888fffffffffffffffffffffffffffffffffffff
+        8888888888888888888888888888888888888888aaa8888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88888aaaaa888aaaaa888888fffffffffffffffffffffffffffffffffffff
         88888888888888888888888888888888888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa888888888888888888888888888888f888f8f8f8f8f8c888ffffff8ffffffffffff
         8888888888888888888888888888888888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88888888888888888888888888888888ff88c8f8f8f8f8cffffc8f8f8ffffffffffff
         888888888888888888888888888888888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa88888aaaa88aaa88888888888888888ffffffffffffffffffffffffffffffffffffff
@@ -192,10 +191,10 @@ def mostrar_menu_inicio():
         8888cffffffffffaaaaaaacaaaaafaaaaffaaaaaaaaaaaaaaaaaaa888888888888888888888888888888aaaa888888888888888888888888888888888888a8888888888f88888faa8888fffffffffff
         88888fffffffffcaaaaaaffacccffaaaaffaaaaaaaaa888aaaaa888888888888888888888888888888888888888888888888888888888888888888888888aa8888888888f88888c88888fffffffffff
         fff8ffffffffefcaffffcffffffffaccffffffccaaa88aa88aaa88a888888888888888888888888888888888888888888aaa888888888888888888888888aa88888888888fcccccf8aaafffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffc88888aaaa88888888888888888888888888888888888888888888aaaa88888888888888888888888aa88888888888cffffffaaaffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffc8888888888888888888888888888888888888aaaaa888888888888888888888888888888888888ffaaaa8888888fffffffaaffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffc888888888888888888888888888888888888aaaaaaaa88888888888888888888a88888888888888ffff88aa88888fffffffaffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffc888888888888888888888aaa888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8aaaaaaa888888aaaaffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffc88888aaaa88888888888888888888888888888888888888888888aaaa88888888888888888888888aa88888888888cffffffaaaffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffc8888888888888888888888888888888888888aaaaa888888888888888888888888888888888888ffaaaa8888888fffffffaaffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffc888888888888888888888888888888888888aaaaaaaa88888888888888888888a88888888888888ffff88aa88888fffffffaffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffc888888888888888888888aaa888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8aaaaaaa888888aaaaffffffffffffffffffffffffffffffffffff
         ffffffffffffcccccccccccccccccbddbcccccccccccccc888888888888aaa888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacafffafafacaccacacafaffffffffffff
         ffffffffffffccccccccccccccaddddddddaccccccccccc888aaa8aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacafcfafafacaccafccafaffffffffffff
         ffffffffffffccccccccccccddddaccccaddddcccccccccaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacffcfcfcfafacaccacfffffffffffffffff
@@ -208,10 +207,10 @@ def mostrar_menu_inicio():
         ffffffffffffffffffffffcffcccfcccccccffffffffffccccacccccccccaccaaaaaaa8888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccfffccffffffffccaccffffffffffffffffffffff
         ffffffffffffffffffffcd3bf3cdfbb3ccdcccbbbffffffcccaacaceacaaaaaaaaaaaa8888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaffffffffffffffffffffffffffffffffffffffffffffff
         ffffffffffffffffffffffccffccfcccfffcffcfffffffacfccaaecca2aa8aaaaaaaaa8868aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8f2eee2fcffcfcccccccccfffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffccc68c886aaabaaaaaaaaaa8868aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8f2eeeefffccfcfffcccbcccfffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffcccc88668889aaa9aaaaaaaa8868aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8f22fe2fffccfccccbcffbfffffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffccaca68ca6caabbaaaaaaaaa8868aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8ffffffccfcffccfcccccccccffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffcacccc6c8668cbbaaabaaaaaaa8868aaaaaa888888888888888888888aaaaaaaaaaaafccfcfccc8cfcccccccccccccfffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffccc68c886aaabaaaaaaaaaa8868aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8f2eeeefffccfcfffcccbcccfffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffcccc88668889aaa9aaaaaaaa8868aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8f22fe2fffccfccccbcffbfffffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffccaca68ca6caabbaaaaaaaaa8868aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8ffffffccfcffccfcccccccccffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffcacccc6c8668cbbaaabaaaaaaa8868aaaaaa888888888888888888888aaaaaaaaaaaafccfcfccc8cfcccccccccccccfffffffffffffffffffff
         fffffffffffffffcffffcffffcfffccffcffccfcfccccacccc8668889aaa9aaaaaaaaaa868aaaa8f8fffffffffffffffffff6aaaaaaaaaaabcccfccccfccccccbcccccccccfffffffffffffffffffff
         cccccccccccccccccccccccccccccc666666666666666cccc86aca68cabbaaaaaaaaaaa668a88cff8fcfccacffffffcccccc6aaaaaaaaabbbccccccccfccfcfffffcfffffcfffffffffffffffffffff
         88888888888666666666666666666666666666666666666cc8c866cc6bccccaaacaaaa86668fffff8fccfffffffffffccaac6aaaaaaaaabbbaccccccccccfcfcfcfcfefcfcfffffffffffffffffffff
@@ -222,27 +221,27 @@ def mostrar_menu_inicio():
         88888888888866666666666666666666666666666666666acfcc6caabcccfccb888aca66668fffff8fcccccccccccccacccc6ccccdddbaccccab3baaaeaaeceecfffffffccfffffffffffffffffffff
         8888cccccccc8888888888866666666666666666666666cccccccfcaccccfcc888cbc866688faccc8ccccccccccccaaacccc6cccbbdbcacccaaa23aaaeaaecaaaafcccfcfcfffffffffffffffffffff
         fffffffffffffffcffffcffffcfffccffcffccfcfccccccccccccccacbcccccc8888c888888ccf8c8cccccccccccaccccccc6aaebaaaaaaaaaaaaaaaacaceaffffffffffcffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffccccccccccc8caccfccaaaa8c888888fffff8fcccccccccaaccccccc6aacccccccccccaacaaaaeaaecffffffffffcffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffccccccccaaaa8cc88888ffffc8ccccaaccccccccccccc6aaaccccccfffccccaceeeaaeafffffffffffffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffccccccccccc8caccfccaaaa8c888888fffff8fcccccccccaaccccccc6aacccccccccccaacaaaaeaaecffffffffffcffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffccccccccaaaa8cc88888ffffc8ccccaaccccccccccccc6aaaccccccfffccccaceeeaaeafffffffffffffffffffffffffffffffff
         ffffffffffffffffffffcfffffffffffffffffffffafffffcfcfcfccccaaccccaaacc888868ccfcc8cccccccccccccccccac6ccccacfccffffaffaaaaeaacafffffffffffffffffffffffffffffffff
         fffcfffffffffffffffffffcffffcffffffffffffffffffffffffffcccccccaaaaa8c888888fcccc8cccccccccccccccaacc6ccccccffcfcffaffaaccecaccfffffffffffffffffffffffffffffffff
         ffffffffffffffffffffffccffffacfffffffffffffffffffffffffcccaacccaaaacaaaaaaaccccc8cccaacccccccccfcccc8cccacfffcffffaffaccacacecfefefffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffcccaccccaaaac66688ccc8ccc8ccacacacfccccfffccaacccacfffccfffaffacaceccecffffffffffcffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffcccaccccaaaac66688ccc8ccc8ccacacacfccccfffccaacccacfffccfffaffacaceccecffffffffffcffffffffffffffffffffff
         ffffffffffffffffffcffffffffffffffffffffffffffcccccfffffcccccccaaaaff668888888ccc8cccffffccfffcffcccacfccacfffcffffaffacacecceafffffffffffffffffffffffffffffffff
         ffffffffffffffffffcffffffaaffffffffffffffffffcffccffffccccccccccccccccccccccccccccffffffffc666ccffffffffacfffcffffaffacaaaaacafffffffffffffffffffffffffffffffff
         fffffffffffffcfffccffffffccffffffffffff6fffffccfcfffffffacaafffffffffffffffffffffffffffff68cc886cfffffffacfccafcffaffacaccffecffffffeffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffff8fffffffffffccfffcccafcccfcccffcfcffcfcfcccffffffc6896966cffffffffffffffffffffacaccfffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffff8fffffffffffccfffcccafcccfcccffcfcffcfcfcccffffffc6896966cffffffffffffffffffffacaccfffffffffffffffffffffffffffffffffffff
         f8fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcff6c8fcffcfcfff6ffffffc66c8c66cfffffffffffffffffcffacaccfffcffffffffffcffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc666c6fcff8c888c6fffffffc8888ccffffffffffcffcfff66ffacaccffecfcfcfcfffccffffffffffffffffffffff
-        fffffffffffffffffffffffffffffcffffffffffffffffffffffffffffffffffffcc6c8f8ff8f8ccc8fcccccccccccccccccccfffffffcfcfffffacaccfffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffc666c6fcff8c888c6fffffffc8888ccffffffffffcffcfff66ffacaccffecfcfcfcfffccffffffffffffffffffffff
+        fffffffffffffffffffffffffcffffffffffffffffffffffffffffffffffffcc6c8f8ff8f8ccc8fcccccccccccccccccccfffffffcfcfffffacaccfffffffffffffffffffffffffffffffffffff
         ffffffffffccfffffffffffffafffaffffffffffffcfffffffffffffffffcffffffccc8fcffcf8cffcfffffcfffffffffffffffffffffcccccccfacacffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffcffffffffffcfffffffffffffffffcccccfffffffffffccffffccfcccccfcfffffcfffffffffffffffffccfffffffffffcffffffffffffffffffffffffffffffffffffffff
         fffff8fffffffffffffffcffffffffffcfffffffffffffffffffffffffffffffffaaffff8fc8cfccccfcccccccccccccccccccffffffffffffffcfcffffffffcfcfffffffcfffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8fc8ccccccfffccffffffffcffffffffffffffccffffcfcfffffcfccfcfffffffffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffccffffcfccccccccfffffffffffffffffffffff8fffffffffffffffffffffffffffffffffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8fc8ccccccfffccffffffffcffffffffffffffccffffcfcfffffcfccfcfffffffffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffccffffcfccccccccfffffffffffffffffffffff8fffffffffffffffffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffffffaffffffffffffffffffffffffffffffffffffcfffccfffcccc8ccccccfcccccccccccccccccccffffffffcccfcfcffffffffffcfcfffccfcffffffffffffffffffffff
         fffffff8fffffffffffffffffaffffffffffffffffffffffffffffffffffffffffccccccccccccccccfffffffffffffffffffffffffffffffffffffffffffffffffffee22efffffffffffffffffffff
-        fffffffffffffffffffffffffffffffccfffffffffffffffffffffffffffffffffccfcccccccccccccfffcfffffffbfff6fffffffffffffffffffffffffffffffffffdebbbfffffffffffffffffffff
+        fffffffffffffffffffffffffffccfffffffffffffffffffffffffffffffffccfcccccccccccccfffcfffffffbfff6fffffffffffffffffffffffffffffffffffdebbbfffffffffffffffffffff
         fffffffffffffffffffffffffccfffffffffffffffffffffffffffffffffccffffcccccccccccccccafffffffffffffffffffffffffffffffffffffffffffffffffffb2ffffffffffffffffffffffff
         fffffffffffffffffffffffffaaffffffffffffffffffffffffffffff888888fccccccccccccffcfffffcccccccfccccccccccfffffffffffffffffffffffffffffffe22fffffffffffffffffffffff
         fffffffffffffffffffffffc666666666666666666666666fffffffff88ff888ccacccccccccffffffffffccffffccccfccfffffff8ffffffffffffffffffffffffff2eecffffffffffffffffffffff
@@ -251,36 +250,34 @@ def mostrar_menu_inicio():
         ffffffffffffffffffffffff6fafacacdd3adddbeacacbb6fffffffffffffffffffffffffffffff999f97666699f967ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffffc6dccccccad11adaaacccdcf6fffff88fffffffffff68fffffffffffffffffffffffffffffffccffffffffcffffffffcfffcffffffffffee2fffffffffffffffffffffff
         fffffffffffffffffffffffc66666666666666666666666cffffffffffffffffffffffcffcfffccc6ffcf6cfffccfc6c6fffccffffcfffcccfffffcfcffffffffffffeeefffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffffff8fffffffffff6cff6cfffffffffff66ffcf66fffffffffffffbcdcfffffffffffffffffffffffffffffffffefffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffccfffffffffffccffcccccfffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffffff8fffffffffff6cff6cfffffffffff66ffcf66fffffffffffffbcdcfffffffffffffffffffffffffffffffffefffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffccfffffffffffccffcccccfffffffffffffffffffffffffffffffffffffffffffffffffffffff
         ffffffffffffffffffffffffffccfcfcffcfffffffffffffffffffffffffffffffffffcffcfffffffff6fccfcc66cc6ccffcffcfcccffffffffffffffffffffffffffffffffffffffffffffffffffff
         ffffffffffffffffffffffffffcfccfccfcfffffffffffffffffffffffffffffffffffcfcc6cf66c6fffffffff66cffc6ffcffbffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcfcfcffffffffffcfcffcccfcffcffcccffffffcccccccfffffffffffffffffffffffffffeffeefffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffcaaaeffffffffcfffcfffffffffcffccccffcfccfffffcffffccccccccccfcffffcfffffffffffffffffffb2eebfffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffffffffffffcfcfcffffffffffcfcffcccfcffcffcccffffffcccccccfffffffffffffffffffffffffffeffeefffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffcaaaeffffffffcfffcfffffffffcffccccffcfccfffffcffffccccccccccfcffffcfffffffffffffffffffb2eebfffffffffffffffffffff
         ffffffffffffffffaaaaafeeeeeffffffffffffffffffffabdecffcfffcfffccfcccffffffffffffffffffffffcbccb6fbbffbbfcbcccebfccbccffffffffffffffffffffffffffffffffffffffffff
         ffffffefffffffffeeeeefcffffffffffffffffffffffffaeeecffcfffcfffcfffccfffffffffffffffffffcffffffc6ffbbfeeccccfbeefcbccfffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffaeeeecccfffffffffffffffcfccccfccccffffccffffffffc66666666cccc6666666cfffffffffffffffffffffffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffc3aacffaeeeecfffffcffeeffffffffffffcfcbcbffbcbcfbbbbfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffeaacffaeeeecfffffffffffffffffffffffffffccfcfcccccccccfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffabdeecfffffffffffffffffffffffffffcfffffffccffccfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffaeeeecccfffffffffffffffcfccccfccccffffccffffffffc66666666cccc6666666cfffffffffffffffffffffffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffc3aacffaeeeecfffffcffeeffffffffffffcfcbcbffbcbcfbbbbfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffeaacffaeeeecfffffffffffffffffffffffffffccfcfcccccccccfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffabdeecfffffffffffffffffffffffffffcfffffffccffccfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffffffffffbbbbafffffffffffffaedecffffffffffffffffffffffffffffffffffffffffffffffffffcccfeffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffeaaaafffffffffffffaeeeefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffaeeeeecefffff66ffffffffffff43c66ffffffefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff66ffffffffffffeec66fffffffffffffffffffffffcccfcffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffeeffffffffffffffffffffffffffffffffffffffffffffffffffffffffccffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffcfaacfffeefffccfffffffffffffffccffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff66ffffffffffffffffffffffffffcaffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffeeffffffffffffffffffffffffffffffffffffffffffffffffff66ffffcfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        ffffffffffffffffffffffffeeefffffffffffffffffffffffffffffffffffffffffffffffffffcffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffeaaaafffffffffffffaeeeefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffaeeeeecefffff66ffffffffffff43c66ffffffefffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        ffffffffffffffffffffffffffffffffffffffffffffffffffff66ffffffffffffeec66fffffffffffffffffffffffcccfcffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffeeffffffffffffffffffffffffffffffffffffffffffffffffffffccffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffcfaacfffeefffccfffffffffffffffccffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff66ffffffffffffffffffffffffffcaffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffeeffffffffffffffffffffffffffffffffffffffffffffff66ffffcfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        ffffffffffffffffffffffffeeefffffffffffffffffffffffffffffffffffffffffffffffcffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         """))
     # 2. Creamos el menú directamente como una variable local primero
     menu = miniMenu.create_menu(miniMenu.create_menu_item("JUGAR"),
@@ -305,41 +302,58 @@ def mostrar_menu_inicio():
             inicializar_juego()
     menu.on_button_pressed(controller.A, on_button_pressed)
     
-# --- APARICIÓN DE ENEMIGOS: AHORA SE MUEVEN ALEATORIAMENTE ---
+# --- APARICIÓN DE ENEMIGOS: LISTA DE COORDENADAS ---
 def spawn_bugs():
-    # Función auxiliar para crear 1 bug en unas coordenadas concretas
+    lista_coordenadas = [
+        # Habitación Pieza 3 
+        [3, 3],
+        [9, 3],
+        [6, 4],
+        [4, 9],
+        [8, 8],
+        # Habitación Pieza 1
+        [17, 4],
+        [19, 6],
+        [18, 7],
+        # Habitación Pieza 2
+        [25, 14],
+        [27, 15],
+        [28, 16],
+        # Sala Neutral
+        [3, 15],
+        [7, 16],
+        # Sala Neutral
+        [17, 14],
+        [19, 15],
+        # Sala Neutral
+        [26, 5],
+        [26, 4]
+    ]
+    # Función auxiliar interna
     def crear_bug(c: number, f: number):
         bug = sprites.create(assets.image("""
             bug_down
             """), SpriteKind.enemy)
+        
+        # Colocamos al enemigo en la baldosa exacta
         tiles.place_on_tile(bug, tiles.get_tile_location(c, f))
+        
         # Les ponemos su barra de vida (2 puntos)
         barra = statusbars.create(16, 2, StatusBarKind.health)
         barra.attach_to_sprite(bug)
         barra.max = 2
         barra.value = 2
-        # Movimiento libre por la sala (chocando con los muros reales del mapa)
+        
+        # Movimiento inicial aleatorio (para que no parezcan estatuas)
         bug.vx = randint(-25, 25)
         bug.vy = randint(-25, 25)
-    # Habitacion Pieza 3 (Arriba-Izquierda)
-    crear_bug(3, 4)
-    crear_bug(5, 2)
-    crear_bug(2, 6)
-    # Nueva
-    # Habitacion Pieza 1 (Arriba-Derecha)
-    crear_bug(14, 3)
-    crear_bug(18, 2)
-    crear_bug(16, 5)
-    # Nueva
-    # Habitacion Pieza 2 (Abajo-Derecha)
-    crear_bug(25, 16)
-    crear_bug(28, 15)
-    crear_bug(26, 18)
-    # Nueva
-    # Sala Central / Sala Final del Boss
-    crear_bug(10, 8)
-# Solo una haciendo guardia
-# --- INTELIGENCIA ARTIFICIAL (DETECCIÓN DE CERCANÍA) ---
+
+    # Bucle que lee tu lista y crea los enemigos
+    for coordenada in lista_coordenadas:
+        # coordenada[0] es la columna, coordenada[1] es la fila
+        crear_bug(coordenada[0], coordenada[1])
+
+# --- DETECCIÓN DE CERCANÍA ---
 def gestionar_ia_enemigos():
     for bug2 in sprites.all_of_kind(SpriteKind.enemy):
         # El jefe no patrulla, siempre persigue
@@ -358,6 +372,7 @@ def gestionar_ia_enemigos():
             if bug2.vx == 0 and bug2.vy == 0:
                 bug2.vx = randint(-25, 25)
                 bug2.vy = randint(-25, 25)
+
 def gestionar_animaciones():
     global dir_x, dir_y
     # --- Animación y Dirección del Robot ---
