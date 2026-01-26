@@ -99,7 +99,7 @@ function repartir_piezas() {
     let piece1 = sprites.create(assets.image`
         piece1
         `, SpriteKind.Food)
-    tiles.placeOnTile(piece1, tiles.getTileLocation(16, 2))
+    tiles.placeOnTile(piece1, tiles.getTileLocation(17, 2))
     //  --- PIEZA 2 ---
     let piece2 = sprites.create(assets.image`
         piece2

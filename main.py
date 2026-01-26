@@ -100,7 +100,7 @@ def repartir_piezas():
     piece1 = sprites.create(assets.image("""
         piece1
         """), SpriteKind.food)
-    tiles.place_on_tile(piece1, tiles.get_tile_location(16, 2))
+    tiles.place_on_tile(piece1, tiles.get_tile_location(17, 2))
     # --- PIEZA 2 ---
     piece2 = sprites.create(assets.image("""
         piece2
