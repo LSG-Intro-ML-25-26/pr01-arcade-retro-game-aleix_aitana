@@ -6,6 +6,12 @@ let jefe_final : Sprite = null
 //  Variables para recordar hacia dónde mira el robot y poder disparar en esa dirección
 let dir_x = 0
 let dir_y = 100
+//  Cotadores de piezas
+let cantidad_p1 = 0
+let cantidad_p2 = 0
+let cantidad_p3 = 0
+let iventario_abierto = false
+let juego_pausado = false
 function inicializar_juego() {
     
     //  1. CARGAR EL MAPA
@@ -31,125 +37,6 @@ function inicializar_juego() {
     spawn_bugs()
     //  Llamamos a la función que crea las piezas
     repartir_piezas()
-}
-
-//  --- DISPARAR CON EL BOTÓN A ---
-controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
-    let disparo: Sprite;
-    if (mi_jugador) {
-        //  Crea un proyectil de plasma azul cian
-        disparo = sprites.createProjectileFromSprite(img`
-                . . 9 9 . .
-                . 9 6 6 9 .
-                9 6 1 1 6 9
-                9 6 1 1 6 9
-                . 9 6 6 9 .
-                . . 9 9 . .
-                `, mi_jugador, dir_x, dir_y)
-        music.pewPew.play()
-    }
-    
-})
-//  --- COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
-//  Asignamos el evento de choque Proyectil - Enemigo
-sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overlap_disparo(sprite: Sprite, otherSprite: Sprite) {
-    let tiempo_final: number;
-    //  Destruye el disparo al chocar
-    sprite.destroy()
-    //  Busca la barra de vida del enemigo golpeado
-    let barra_vida = statusbars.getStatusBarAttachedTo(StatusBarKind.Health, otherSprite)
-    if (barra_vida) {
-        barra_vida.value -= 1
-        //  Efecto de daño
-        otherSprite.startEffect(effects.blizzard, 200)
-        //  Si la vida llega a 0, el enemigo muere
-        if (barra_vida.value <= 0) {
-            otherSprite.destroy(effects.disintegrate, 200)
-            music.zapped.play()
-            //  ¡SI EL QUE MUERE ES EL JEFE FINAL, GANAS EL JUEGO!
-            if (otherSprite == jefe_final) {
-                game.showLongText("¡NÚCLEO ELIMINADO! El sistema se ha restablecido.", DialogLayout.Bottom)
-                tiempo_final = info.countdown()
-                info.setScore(tiempo_final)
-                game.gameOver(true)
-            }
-            
-        }
-        
-    }
-    
-})
-//  --- COLISIÓN DEL JUGADOR CONTRA ENEMIGOS (PIERDES VIDA) ---
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap_enemigo(sprite2: Sprite, otherSprite2: Sprite) {
-    //  Quitamos una vida
-    info.changeLifeBy(-1)
-    if (info.life() <= 0) {
-        info.setScore(0)
-    }
-    
-    //  Efecto de dolor
-    music.knock.play()
-    scene.cameraShake(4, 500)
-    //  Pausa de 1 segundo (1000 ms) para dar invulnerabilidad y que no mueras al instante
-    pause(1000)
-})
-function repartir_piezas() {
-    //  --- PIEZA 1 ---
-    let piece1 = sprites.create(assets.image`
-        piece1
-        `, SpriteKind.Food)
-    tiles.placeOnTile(piece1, tiles.getTileLocation(17, 2))
-    //  --- PIEZA 2 ---
-    let piece2 = sprites.create(assets.image`
-        piece2
-        `, SpriteKind.Food)
-    tiles.placeOnTile(piece2, tiles.getTileLocation(27, 17))
-    //  --- PIEZA 3 ---
-    let piece3 = sprites.create(assets.image`
-        piece3
-        `, SpriteKind.Food)
-    tiles.placeOnTile(piece3, tiles.getTileLocation(2, 2))
-}
-
-function aparecer_jefe() {
-    
-    game.showLongText("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.Bottom)
-    //  Creamos al jefe final
-    jefe_final = sprites.create(assets.image`
-        boss_front
-        `, SpriteKind.Enemy)
-    //  COORDENADAS DONDE APARECERA EL JEFE FINAL (Columna, Fila)
-    tiles.placeOnTile(jefe_final, tiles.getTileLocation(10, 10))
-    //  Le ponemos su barra de vida gigante de 15 puntos
-    let barra_jefe = statusbars.create(40, 6, StatusBarKind.Health)
-    barra_jefe.attachToSprite(jefe_final)
-    barra_jefe.max = 15
-    barra_jefe.value = 15
-    //  Hacemos que persiga al jugador (El jefe SÍ te persigue siempre)
-    jefe_final.follow(mi_jugador, 40)
-}
-
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite3: Sprite, otherSprite3: Sprite) {
-    otherSprite3.destroy(effects.confetti, 500)
-    info.changeScoreBy(1)
-    music.baDing.play()
-    if (info.score() == 3) {
-        aparecer_jefe()
-    }
-    
-})
-function narrar_historia() {
-    //  Muestra cuadros de texto explicando el Lore del juego.
-    game.showLongText("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes", DialogLayout.Bottom)
-    game.showLongText("El servidor NEXUS-CORE ha sido infectado." + "Un virus ha tomado el control del sistema.", DialogLayout.Bottom)
-    game.showLongText("Protocolo activado: 404." + "Reinicio total inminente.", DialogLayout.Bottom)
-    game.showLongText("Tú eres un Data Sweeper." + "Un robot diseñado para limpiar datos corruptos.", DialogLayout.Bottom)
-    game.showLongText("Tu misión:" + "Recuperar 3 Paquetes de Datos Vitales.", DialogLayout.Bottom)
-    game.showLongText("El virus tiene un núcleo." + "Su nombre es Root-Overwrite.", DialogLayout.Bottom)
-    //  INSTRUCCIONES DE DISPARO
-    game.showLongText("Llevas equipado un Cañón de Limpieza de Datos. Usa el BOTÓN A para disparar.", DialogLayout.Bottom)
-    game.showLongText("Los bugs caerán con 2 impactos. El núcleo requerirá 15.", DialogLayout.Bottom)
-    game.showLongText("El tiempo corre." + "Inicia la limpieza.", DialogLayout.Bottom)
 }
 
 function mostrar_menu_inicio() {
@@ -294,6 +181,160 @@ function mostrar_menu_inicio() {
         }
         
     })
+}
+
+//  --- DISPARAR CON EL BOTÓN A ---
+controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
+    let disparo: Sprite;
+    if (mi_jugador) {
+        //  Crea un proyectil de plasma azul cian
+        disparo = sprites.createProjectileFromSprite(img`
+                . . 9 9 . .
+                . 9 6 6 9 .
+                9 6 1 1 6 9
+                9 6 1 1 6 9
+                . 9 6 6 9 .
+                . . 9 9 . .
+                `, mi_jugador, dir_x, dir_y)
+        music.pewPew.play()
+    }
+    
+})
+//  --- COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
+//  Asignamos el evento de choque Proyectil - Enemigo
+sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overlap_disparo(sprite: Sprite, otherSprite: Sprite) {
+    let tiempo_final: number;
+    //  Destruye el disparo al chocar
+    sprite.destroy()
+    //  Busca la barra de vida del enemigo golpeado
+    let barra_vida = statusbars.getStatusBarAttachedTo(StatusBarKind.Health, otherSprite)
+    if (barra_vida) {
+        barra_vida.value -= 1
+        //  Efecto de daño
+        otherSprite.startEffect(effects.blizzard, 200)
+        //  Si la vida llega a 0, el enemigo muere
+        if (barra_vida.value <= 0) {
+            otherSprite.destroy(effects.disintegrate, 200)
+            music.zapped.play()
+            //  ¡SI EL QUE MUERE ES EL JEFE FINAL, GANAS EL JUEGO!
+            if (otherSprite == jefe_final) {
+                game.showLongText("¡NÚCLEO ELIMINADO! El sistema se ha restablecido.", DialogLayout.Bottom)
+                tiempo_final = info.countdown()
+                info.setScore(tiempo_final)
+                game.gameOver(true)
+            }
+            
+        }
+        
+    }
+    
+})
+//  --- COLISIÓN DEL JUGADOR CONTRA ENEMIGOS (PIERDES VIDA) ---
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap_enemigo(sprite2: Sprite, otherSprite2: Sprite) {
+    //  Quitamos una vida
+    info.changeLifeBy(-1)
+    if (info.life() <= 0) {
+        info.setScore(0)
+    }
+    
+    //  Efecto de dolor
+    music.knock.play()
+    scene.cameraShake(4, 500)
+    //  Pausa de 1 segundo (1000 ms) para dar invulnerabilidad y que no mueras al instante
+    pause(1000)
+})
+function repartir_piezas() {
+    //  --- PIEZA 1 ---
+    let piece1 = sprites.create(assets.image`
+        piece1
+        `, SpriteKind.Food)
+    tiles.placeOnTile(piece1, tiles.getTileLocation(17, 2))
+    //  --- PIEZA 2 ---
+    let piece2 = sprites.create(assets.image`
+        piece2
+        `, SpriteKind.Food)
+    tiles.placeOnTile(piece2, tiles.getTileLocation(27, 17))
+    //  --- PIEZA 3 ---
+    let piece3 = sprites.create(assets.image`
+        piece3
+        `, SpriteKind.Food)
+    tiles.placeOnTile(piece3, tiles.getTileLocation(2, 2))
+}
+
+function aparecer_jefe() {
+    
+    game.showLongText("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.Bottom)
+    //  Creamos al jefe final
+    jefe_final = sprites.create(assets.image`
+        boss_front
+        `, SpriteKind.Enemy)
+    //  COORDENADAS DONDE APARECERA EL JEFE FINAL (Columna, Fila)
+    tiles.placeOnTile(jefe_final, tiles.getTileLocation(10, 10))
+    //  Le ponemos su barra de vida gigante de 15 puntos
+    let barra_jefe = statusbars.create(40, 6, StatusBarKind.Health)
+    barra_jefe.attachToSprite(jefe_final)
+    barra_jefe.max = 15
+    barra_jefe.value = 15
+    //  Hacemos que persiga al jugador (El jefe SÍ te persigue siempre)
+    jefe_final.follow(mi_jugador, 40)
+}
+
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite3: Sprite, otherSprite3: Sprite) {
+    otherSprite3.destroy(effects.confetti, 500)
+    info.changeScoreBy(1)
+    music.baDing.play()
+    if (info.score() == 3) {
+        aparecer_jefe()
+    }
+    
+})
+function abrir_iventario() {
+    
+    if (iventario_abierto) {
+        return
+    }
+    
+    iventario_abierto = true
+    let juego_pausado2 = true
+    let iv = miniMenu.createMenu(miniMenu.createMenuItem("PIEZA 1 x" + ("" + ("" + cantidad_p1)), assets.image`
+                piece1
+                `), miniMenu.createMenuItem("PIEZA 2 x" + ("" + ("" + cantidad_p2)), assets.image`
+                piece2
+                `), miniMenu.createMenuItem("PIEZA 3 x" + ("" + ("" + cantidad_p3)), assets.image`
+                piece3
+                `), miniMenu.createMenuItem("CERRAR"))
+    iv.setStayInScreen(true)
+    iv.setFrame(assets.image`
+        MenuFrame
+        `)
+    iv.setTitle("INVENTARIO")
+    iv.onButtonPressed(controller.A, function on_button_pressed2(selection2: any, index: any) {
+        
+        iventario_abierto = false
+        iv.close()
+    })
+}
+
+controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
+    let juego_pausado3: boolean;
+    if (mi_jugador) {
+        abrir_iventario()
+        juego_pausado3 = false
+    }
+    
+})
+function narrar_historia() {
+    //  Muestra cuadros de texto explicando el Lore del juego.
+    game.showLongText("Año 2149." + "Los servidores corporativos se han convertido en mundos digitales conscientes", DialogLayout.Bottom)
+    game.showLongText("El servidor NEXUS-CORE ha sido infectado." + "Un virus ha tomado el control del sistema.", DialogLayout.Bottom)
+    game.showLongText("Protocolo activado: 404." + "Reinicio total inminente.", DialogLayout.Bottom)
+    game.showLongText("Tú eres un Data Sweeper." + "Un robot diseñado para limpiar datos corruptos.", DialogLayout.Bottom)
+    game.showLongText("Tu misión:" + "Recuperar 3 Paquetes de Datos Vitales.", DialogLayout.Bottom)
+    game.showLongText("El virus tiene un núcleo." + "Su nombre es Root-Overwrite.", DialogLayout.Bottom)
+    //  INSTRUCCIONES DE DISPARO
+    game.showLongText("Llevas equipado un Cañón de Limpieza de Datos. Usa el BOTÓN A para disparar.", DialogLayout.Bottom)
+    game.showLongText("Los bugs caerán con 2 impactos. El núcleo requerirá 15.", DialogLayout.Bottom)
+    game.showLongText("El tiempo corre." + "Inicia la limpieza.", DialogLayout.Bottom)
 }
 
 //  --- APARICIÓN DE ENEMIGOS: LISTA DE COORDENADAS ---
