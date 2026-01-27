@@ -279,44 +279,58 @@ def aparecer_jefe():
     jefe_final.follow(mi_jugador, 40)
 
 def on_on_overlap(sprite3, otherSprite3):
+    global cantidad_p1, cantidad_p2, cantidad_p3
+    
+    # Identificamos qué pieza es por su imagen para sumar al contador correcto
+    if otherSprite3.image == assets.image("""piece1"""):
+        cantidad_p1 += 1
+    elif otherSprite3.image == assets.image("""piece2"""):
+        cantidad_p2 += 1
+    elif otherSprite3.image == assets.image("""piece3"""):
+        cantidad_p3 += 1
+
     otherSprite3.destroy(effects.confetti, 500)
     info.change_score_by(1)
     music.ba_ding.play()
+    
     if info.score() == 3:
         aparecer_jefe()
+
 sprites.on_overlap(SpriteKind.player, SpriteKind.food, on_on_overlap)
 
 def abrir_iventario():
-    global iventario_abierto
+    global iventario_abierto, cantidad_p1, cantidad_p2, cantidad_p3
     if iventario_abierto:
         return
+    
     iventario_abierto = True
-    juego_pausado2 = True
-    iv = miniMenu.create_menu(miniMenu.create_menu_item("PIEZA 1 x" + ("" + str(cantidad_p1)),
-            assets.image("""
-                piece1
-                """)),
-        miniMenu.create_menu_item("PIEZA 2 x" + ("" + str(cantidad_p2)),
-            assets.image("""
-                piece2
-                """)),
-        miniMenu.create_menu_item("PIEZA 3 x" + ("" + str(cantidad_p3)),
-            assets.image("""
-                piece3
-                """)),
-        miniMenu.create_menu_item("CERRAR"))
-    iv.set_stay_in_screen(True)
-    iv.set_frame(assets.image("""
-        MenuFrame
-        """))
+    # Bloqueamos el movimiento del jugador
+    controller.move_sprite(mi_jugador, 0, 0)
+    
+    iv = miniMenu.create_menu(
+        miniMenu.create_menu_item("PIEZA 1 x" + str(cantidad_p1), assets.image("""piece1""")),
+        miniMenu.create_menu_item("PIEZA 2 x" + str(cantidad_p2), assets.image("""piece2""")),
+        miniMenu.create_menu_item("PIEZA 3 x" + str(cantidad_p3), assets.image("""piece3""")),
+        miniMenu.create_menu_item("CERRAR")
+    )
+    
+    # set_flag para que el menú siga a la cámara
+    iv.set_flag(SpriteFlag.RELATIVE_TO_CAMERA, True)
+    iv.set_frame(assets.image("""MenuFrame"""))
     iv.set_title("INVENTARIO")
     
+    # Centrar en pantalla (la pantalla de Arcade es de 160x120)
+    iv.x = 80
+    iv.y = 60
+
     def on_button_pressed2(selection2, index):
         global iventario_abierto
         iventario_abierto = False
         iv.close()
-    iv.on_button_pressed(controller.A, on_button_pressed2)
-    
+        # Devolvemos el control al jugador al cerrar
+        controller.move_sprite(mi_jugador, 100, 100)
+        
+    iv.on_button_pressed(controller.A, on_button_pressed2)  
 
 def on_b_pressed():
     if mi_jugador:

@@ -280,6 +280,16 @@ function aparecer_jefe() {
 }
 
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite3: Sprite, otherSprite3: Sprite) {
+    
+    //  Identificamos qué pieza es por su imagen para sumar al contador correcto
+    if (otherSprite3.image == assets.image`piece1`) {
+        cantidad_p1 += 1
+    } else if (otherSprite3.image == assets.image`piece2`) {
+        cantidad_p2 += 1
+    } else if (otherSprite3.image == assets.image`piece3`) {
+        cantidad_p3 += 1
+    }
+    
     otherSprite3.destroy(effects.confetti, 500)
     info.changeScoreBy(1)
     music.baDing.play()
@@ -295,23 +305,22 @@ function abrir_iventario() {
     }
     
     iventario_abierto = true
-    let juego_pausado2 = true
-    let iv = miniMenu.createMenu(miniMenu.createMenuItem("PIEZA 1 x" + ("" + ("" + cantidad_p1)), assets.image`
-                piece1
-                `), miniMenu.createMenuItem("PIEZA 2 x" + ("" + ("" + cantidad_p2)), assets.image`
-                piece2
-                `), miniMenu.createMenuItem("PIEZA 3 x" + ("" + ("" + cantidad_p3)), assets.image`
-                piece3
-                `), miniMenu.createMenuItem("CERRAR"))
-    iv.setStayInScreen(true)
-    iv.setFrame(assets.image`
-        MenuFrame
-        `)
+    //  Bloqueamos el movimiento del jugador
+    controller.moveSprite(mi_jugador, 0, 0)
+    let iv = miniMenu.createMenu(miniMenu.createMenuItem("PIEZA 1 x" + ("" + cantidad_p1), assets.image`piece1`), miniMenu.createMenuItem("PIEZA 2 x" + ("" + cantidad_p2), assets.image`piece2`), miniMenu.createMenuItem("PIEZA 3 x" + ("" + cantidad_p3), assets.image`piece3`), miniMenu.createMenuItem("CERRAR"))
+    //  set_flag para que el menú siga a la cámara
+    iv.setFlag(SpriteFlag.RelativeToCamera, true)
+    iv.setFrame(assets.image`MenuFrame`)
     iv.setTitle("INVENTARIO")
+    //  Centrar en pantalla (la pantalla de Arcade es de 160x120)
+    iv.x = 80
+    iv.y = 60
     iv.onButtonPressed(controller.A, function on_button_pressed2(selection2: any, index: any) {
         
         iventario_abierto = false
         iv.close()
+        //  Devolvemos el control al jugador al cerrar
+        controller.moveSprite(mi_jugador, 100, 100)
     })
 }
 
