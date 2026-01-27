@@ -1,27 +1,24 @@
-/** --- VARIABLES GLOBALES --- */
+//  --- VARIABLES GLOBALES ---
 let mi_jugador : Sprite = null
 let menu : miniMenu.MenuSprite = null
+//  Variable para controlar el menú del inventario y poder cerrarlo desde fuera
+let menu_inventario : miniMenu.MenuSprite = null
 //  Variable global para el jefe final
 let jefe_final : Sprite = null
-//  Variables para recordar hacia dónde mira el robot y poder disparar en esa dirección
+//  Variables para recordar hacia dónde mira el robot
 let dir_x = 0
 let dir_y = 100
-//  Cotadores de piezas
+//  Contadores de piezas
 let cantidad_p1 = 0
 let cantidad_p2 = 0
 let cantidad_p3 = 0
-let iventario_abierto = false
-let juego_pausado = false
+let inventario_abierto = false
 function inicializar_juego() {
     
     //  1. CARGAR EL MAPA
-    tiles.setCurrentTilemap(tilemap`
-        level
-        `)
+    tiles.setCurrentTilemap(tilemap`level`)
     //  2. POSICIONAMIENTO EN ZONA AZUL
-    mi_jugador = sprites.create(assets.image`
-        robot_front
-        `, SpriteKind.Player)
+    mi_jugador = sprites.create(assets.image`robot_front`, SpriteKind.Player)
     //  Coordenadas personaje:
     tiles.placeOnTile(mi_jugador, tiles.getTileLocation(34, 16))
     //  Configurar movimiento y cámara
@@ -75,7 +72,6 @@ function mostrar_menu_inicio() {
         fff8ffffffffefcaffffcffffffffaccffffffccaaa88aa88aaa88a888888888888888888888888888888888888888888aaa888888888888888888888888aa88888888888fcccccf8aaafffffffffff
         fffffffffffffffffffffffffffffffffffffffc88888aaaa88888888888888888888888888888888888888888888aaaa88888888888888888888888aa88888888888cffffffaaaffffffffffff
         ffffffffffffffffffffffffffffffffffffffffffc8888888888888888888888888888888888888aaaaa888888888888888888888888888888888888ffaaaa8888888fffffffaaffffffffffff
-        ffffffffffffffffffffffffffffffffffffffffffc888888888888888888888888888888888888aaaaaaaa88888888888888888888a88888888888888ffff88aa88888fffffffaffffffffffff
         ffffffffffffffffffffffffffffffffffffffffffc888888888888888888888aaa888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa8aaaaaaa888888aaaaffffffffffffffffffffffffffffffffffff
         ffffffffffffcccccccccccccccccbddbcccccccccccccc888888888888aaa888aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacafffafafacaccacacafaffffffffffff
         ffffffffffffccccccccccccccaddddddddaccccccccccc888aaa8aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaacacafcfafafacaccafccafaffffffffffff
@@ -114,7 +110,7 @@ function mostrar_menu_inicio() {
         fffffffffffffcfffccffffffccffffffffffff6fffffccfcfffffffacaafffffffffffffffffffffffffffff68cc886cfffffffacfccafcffaffacaccffecffffffeffffffffffffffffffffffffff
         fffffffffffffffffffffffffffffffffff8fffffffffffccfffcccafcccfcccffcfcffcfcfcccffffffc6896966cffffffffffffffffffffacaccfffffffffffffffffffffffffffffffffffff
         f8fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffcff6c8fcffcfcfff6ffffffc66c8c66cfffffffffffffffffcffacaccfffcffffffffffcffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffc666c6fcff8c888c6fffffffc8888ccffffffffffcffcfff66ffacaccffecfcfcfcfffccffffffffffffffffffffff
+        fffffffffffffffffffffffffffffffffffffffffffffffffffffc666c6fcff8c888c6fffffffc8888ccffffffffffcffcfff66ffacaccffecfcfcfcfffccffffffffffffffffffffff
         fffffffffffffffffffffffffcffffffffffffffffffffffffffffffffffffcc6c8f8ff8f8ccc8fcccccccccccccccccccfffffffcfcfffffacaccfffffffffffffffffffffffffffffffffffff
         ffffffffffccfffffffffffffafffaffffffffffffcfffffffffffffffffcffffffccc8fcffcf8cffcfffffcfffffffffffffffffffffcccccccfacacffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffcffffffffffcfffffffffffffffffcccccfffffffffffccffffccfcccccfcfffffcfffffffffffffffffccfffffffffffcffffffffffffffffffffffffffffffffffffffff
@@ -159,14 +155,11 @@ function mostrar_menu_inicio() {
         fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
-        fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
         `)
     //  2. Creamos el menú directamente como una variable local primero
     menu = miniMenu.createMenu(miniMenu.createMenuItem("JUGAR"), miniMenu.createMenuItem("LORE"))
     //  3. Estética
-    menu.setFrame(assets.image`
-        MenuFrame
-        `)
+    menu.setFrame(assets.image`MenuFrame`)
     menu.setStyleProperty(miniMenu.StyleKind.Selected, miniMenu.StyleProperty.Background, 8)
     menu.bottom = 110
     menu.left = 50
@@ -201,7 +194,6 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function on_a_pressed() {
     
 })
 //  --- COLISIÓN DEL DISPARO CONTRA LOS ENEMIGOS ---
-//  Asignamos el evento de choque Proyectil - Enemigo
 sprites.onOverlap(SpriteKind.Projectile, SpriteKind.Enemy, function on_on_overlap_disparo(sprite: Sprite, otherSprite: Sprite) {
     let tiempo_final: number;
     //  Destruye el disparo al chocar
@@ -245,19 +237,13 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function on_on_overlap_en
 })
 function repartir_piezas() {
     //  --- PIEZA 1 ---
-    let piece1 = sprites.create(assets.image`
-        piece1
-        `, SpriteKind.Food)
+    let piece1 = sprites.create(assets.image`piece1`, SpriteKind.Food)
     tiles.placeOnTile(piece1, tiles.getTileLocation(17, 2))
     //  --- PIEZA 2 ---
-    let piece2 = sprites.create(assets.image`
-        piece2
-        `, SpriteKind.Food)
+    let piece2 = sprites.create(assets.image`piece2`, SpriteKind.Food)
     tiles.placeOnTile(piece2, tiles.getTileLocation(27, 17))
     //  --- PIEZA 3 ---
-    let piece3 = sprites.create(assets.image`
-        piece3
-        `, SpriteKind.Food)
+    let piece3 = sprites.create(assets.image`piece3`, SpriteKind.Food)
     tiles.placeOnTile(piece3, tiles.getTileLocation(2, 2))
 }
 
@@ -265,9 +251,7 @@ function aparecer_jefe() {
     
     game.showLongText("¡PELIGRO! El núcleo Root-Overwrite ha despertado.", DialogLayout.Bottom)
     //  Creamos al jefe final
-    jefe_final = sprites.create(assets.image`
-        boss_front
-        `, SpriteKind.Enemy)
+    jefe_final = sprites.create(assets.image`boss_front`, SpriteKind.Enemy)
     //  COORDENADAS DONDE APARECERA EL JEFE FINAL (Columna, Fila)
     tiles.placeOnTile(jefe_final, tiles.getTileLocation(10, 10))
     //  Le ponemos su barra de vida gigante de 15 puntos
@@ -279,15 +263,19 @@ function aparecer_jefe() {
     jefe_final.follow(mi_jugador, 40)
 }
 
+//  --- COLISIÓN PARA RECOGER PIEZAS ---
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(sprite3: Sprite, otherSprite3: Sprite) {
     
     //  Identificamos qué pieza es por su imagen para sumar al contador correcto
-    if (otherSprite3.image == assets.image`piece1`) {
+    if (otherSprite3.image.equals(assets.image`piece1`)) {
         cantidad_p1 += 1
-    } else if (otherSprite3.image == assets.image`piece2`) {
+        mi_jugador.sayText("¡Pieza 1!", 500, false)
+    } else if (otherSprite3.image.equals(assets.image`piece2`)) {
         cantidad_p2 += 1
-    } else if (otherSprite3.image == assets.image`piece3`) {
+        mi_jugador.sayText("¡Pieza 2!", 500, false)
+    } else if (otherSprite3.image.equals(assets.image`piece3`)) {
         cantidad_p3 += 1
+        mi_jugador.sayText("¡Pieza 3!", 500, false)
     }
     
     otherSprite3.destroy(effects.confetti, 500)
@@ -298,37 +286,37 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Food, function on_on_overlap(spr
     }
     
 })
-function abrir_iventario() {
-    
-    if (iventario_abierto) {
-        return
-    }
-    
-    iventario_abierto = true
-    //  Bloqueamos el movimiento del jugador
-    controller.moveSprite(mi_jugador, 0, 0)
-    let iv = miniMenu.createMenu(miniMenu.createMenuItem("PIEZA 1 x" + ("" + cantidad_p1), assets.image`piece1`), miniMenu.createMenuItem("PIEZA 2 x" + ("" + cantidad_p2), assets.image`piece2`), miniMenu.createMenuItem("PIEZA 3 x" + ("" + cantidad_p3), assets.image`piece3`), miniMenu.createMenuItem("CERRAR"))
-    //  set_flag para que el menú siga a la cámara
-    iv.setFlag(SpriteFlag.RelativeToCamera, true)
-    iv.setFrame(assets.image`MenuFrame`)
-    iv.setTitle("INVENTARIO")
-    //  Centrar en pantalla (la pantalla de Arcade es de 160x120)
-    iv.x = 80
-    iv.y = 60
-    iv.onButtonPressed(controller.A, function on_button_pressed2(selection2: any, index: any) {
-        
-        iventario_abierto = false
-        iv.close()
-        //  Devolvemos el control al jugador al cerrar
-        controller.moveSprite(mi_jugador, 100, 100)
-    })
-}
-
+//  --- BOTÓN B: ABRIR / CERRAR INVENTARIO ---
+//  Aquí ya no necesitamos un evento 'on_button_pressed' para cerrar con A,
+//  porque ahora cerramos con B usando la lógica de arriba.
 controller.B.onEvent(ControllerButtonEvent.Pressed, function on_b_pressed() {
-    let juego_pausado3: boolean;
+    
     if (mi_jugador) {
-        abrir_iventario()
-        juego_pausado3 = false
+        if (inventario_abierto) {
+            //  SI ESTÁ ABIERTO -> LO CERRAMOS
+            if (menu_inventario) {
+                menu_inventario.close()
+            }
+            
+            inventario_abierto = false
+            //  Devolvemos el control al jugador al cerrar
+            controller.moveSprite(mi_jugador, 100, 100)
+        } else {
+            //  SI ESTÁ CERRADO -> LO ABRIMOS
+            inventario_abierto = true
+            //  Bloqueamos el movimiento del jugador
+            controller.moveSprite(mi_jugador, 0, 0)
+            //  Creamos el menú con los valores ACTUALIZADOS
+            menu_inventario = miniMenu.createMenu(miniMenu.createMenuItem("PIEZA 1: " + ("" + cantidad_p1), assets.image`piece1`), miniMenu.createMenuItem("PIEZA 2: " + ("" + cantidad_p2), assets.image`piece2`), miniMenu.createMenuItem("PIEZA 3: " + ("" + cantidad_p3), assets.image`piece3`))
+            //  set_flag para que el menú siga a la cámara
+            menu_inventario.setFlag(SpriteFlag.RelativeToCamera, true)
+            menu_inventario.setFrame(assets.image`MenuFrame`)
+            menu_inventario.setTitle("INVENTARIO")
+            //  Centrar en pantalla (la pantalla de Arcade es de 160x120)
+            menu_inventario.x = 80
+            menu_inventario.y = 60
+        }
+        
     }
     
 })
@@ -339,6 +327,7 @@ function narrar_historia() {
     game.showLongText("Protocolo activado: 404." + "Reinicio total inminente.", DialogLayout.Bottom)
     game.showLongText("Tú eres un Data Sweeper." + "Un robot diseñado para limpiar datos corruptos.", DialogLayout.Bottom)
     game.showLongText("Tu misión:" + "Recuperar 3 Paquetes de Datos Vitales.", DialogLayout.Bottom)
+    game.showLongText("Consulta tus piezas recolectadas pulsando el BOTÓN B.", DialogLayout.Bottom)
     game.showLongText("El virus tiene un núcleo." + "Su nombre es Root-Overwrite.", DialogLayout.Bottom)
     //  INSTRUCCIONES DE DISPARO
     game.showLongText("Llevas equipado un Cañón de Limpieza de Datos. Usa el BOTÓN A para disparar.", DialogLayout.Bottom)
@@ -349,17 +338,9 @@ function narrar_historia() {
 //  --- APARICIÓN DE ENEMIGOS: LISTA DE COORDENADAS ---
 function spawn_bugs() {
     let lista_coordenadas = [[3, 3], [9, 3], [6, 4], [4, 9], [8, 8], [17, 4], [19, 6], [18, 7], [25, 14], [27, 15], [28, 16], [3, 15], [7, 16], [17, 14], [19, 15], [26, 5], [26, 4]]
-    //  Habitación Pieza 3 
-    //  Habitación Pieza 1
-    //  Habitación Pieza 2
-    //  Sala Neutral
-    //  Sala Neutral
-    //  Sala Neutral
     //  Función auxiliar interna
     function crear_bug(c: number, f: number) {
-        let bug = sprites.create(assets.image`
-            bug_down
-            `, SpriteKind.Enemy)
+        let bug = sprites.create(assets.image`bug_down`, SpriteKind.Enemy)
         //  Colocamos al enemigo en la baldosa exacta
         tiles.placeOnTile(bug, tiles.getTileLocation(c, f))
         //  Les ponemos su barra de vida (2 puntos)
@@ -416,47 +397,31 @@ function gestionar_animaciones() {
     if (mi_jugador.vx > 0) {
         dir_x = 100
         dir_y = 0
-        mi_jugador.setImage(assets.image`
-            robot_right
-            `)
+        mi_jugador.setImage(assets.image`robot_right`)
     } else if (mi_jugador.vx < 0) {
         dir_x = -100
         dir_y = 0
-        mi_jugador.setImage(assets.image`
-            robot_left
-            `)
+        mi_jugador.setImage(assets.image`robot_left`)
     } else if (mi_jugador.vy < 0) {
         dir_x = 0
         dir_y = -100
-        mi_jugador.setImage(assets.image`
-            robot_up
-            `)
+        mi_jugador.setImage(assets.image`robot_up`)
     } else if (mi_jugador.vy > 0) {
         dir_x = 0
         dir_y = 100
-        mi_jugador.setImage(assets.image`
-            robot_front
-            `)
+        mi_jugador.setImage(assets.image`robot_front`)
     }
     
     //  --- Animación Jefe Final ---
     if (jefe_final) {
         if (jefe_final.vx > 0) {
-            jefe_final.setImage(assets.image`
-                boss_right
-                `)
+            jefe_final.setImage(assets.image`boss_right`)
         } else if (jefe_final.vx < 0) {
-            jefe_final.setImage(assets.image`
-                boss_left
-                `)
+            jefe_final.setImage(assets.image`boss_left`)
         } else if (jefe_final.vy < 0) {
-            jefe_final.setImage(assets.image`
-                boss_up
-                `)
+            jefe_final.setImage(assets.image`boss_up`)
         } else if (jefe_final.vy > 0) {
-            jefe_final.setImage(assets.image`
-                boss_front
-                `)
+            jefe_final.setImage(assets.image`boss_front`)
         }
         
     }
@@ -468,21 +433,13 @@ function gestionar_animaciones() {
         }
         
         if (bug22.vx > 0) {
-            bug22.setImage(assets.image`
-                bug_right
-                `)
+            bug22.setImage(assets.image`bug_right`)
         } else if (bug22.vx < 0) {
-            bug22.setImage(assets.image`
-                bug_left
-                `)
+            bug22.setImage(assets.image`bug_left`)
         } else if (bug22.vy < 0) {
-            bug22.setImage(assets.image`
-                bug_up
-                `)
+            bug22.setImage(assets.image`bug_up`)
         } else if (bug22.vy > 0) {
-            bug22.setImage(assets.image`
-                bug_down
-                `)
+            bug22.setImage(assets.image`bug_down`)
         }
         
     }
